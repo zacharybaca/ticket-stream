@@ -3,6 +3,8 @@
 Ticket Stream is a MERN-based incident management boilerplate for software support and operations teams.  
 It includes auth, incident APIs, incident dashboard pages, timeline updates, and routing needed to start building a ServiceNow-style workflow product.
 
+Project implementation checklist: `/docs/ticket-stream-implementation-checklist.docx`
+
 ## Included boilerplate
 
 - JWT cookie auth and protected routes
