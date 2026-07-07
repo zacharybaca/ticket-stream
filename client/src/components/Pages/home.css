@@ -4,11 +4,31 @@
   padding: 1.5rem 0 2.5rem;
 }
 
+.home-logo {
+  width: 50%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
 .hero-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   background: linear-gradient(140deg, #111827, #0f766e);
   color: #fff;
   border-radius: 14px;
   padding: 2rem 1.5rem;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 780px;
+  margin: 0 auto;
 }
 
 .hero-section h1 {

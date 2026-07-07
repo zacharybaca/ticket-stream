@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
+import logo from '../../assets/ticket_stream_app_logo.png';
 import './home.css';
 
 const Home = () => {
@@ -9,7 +10,7 @@ const Home = () => {
     <div className="home-page">
       <section className="hero-section">
         <div className="container">
-          <h1>Ticket Stream</h1>
+          <img src={logo} alt="Ticket Stream Logo" className="home-logo" />
           <p className="home-lead">
             Incident management workspace for software teams handling enterprise
             client outages, service degradation, and high-priority tickets.
