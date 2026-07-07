@@ -136,7 +136,7 @@ export const downloadImplementationChecklist = async () => {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  window.setTimeout(() => window.URL.revokeObjectURL(url), 100);
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 5000);
 
   return fileName;
 };
