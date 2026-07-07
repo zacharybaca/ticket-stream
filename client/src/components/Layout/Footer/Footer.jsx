@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { NavbarLogo } from '../Logo/NavbarLogo';
 import './footer.css';
 
 const Footer = () => {
@@ -10,10 +11,10 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-brand">
           <Link to="/" className="footer-logo">
-            MERN<span className="logo-accent">Starter</span>
+            <NavbarLogo />
           </Link>
           <p className="footer-tagline">
-            A modern, production-ready React + Express starter template.
+            Precision Incident Delivery for Software Teams
           </p>
         </div>
 
@@ -31,9 +32,9 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; {currentYear} MERN Starter. All rights reserved.</p>
+        <p>&copy; {currentYear} Ticket Stream. All rights reserved.</p>
         <div className="footer-legal">
-          <span>Built with the MERN Stack</span>
+          <span>Built with Developers in mind 💡</span>
         </div>
       </div>
     </footer>

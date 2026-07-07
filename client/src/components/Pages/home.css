@@ -1,11 +1,11 @@
 .home-page {
-  width: min(1100px, 94%);
+  width: min(75%, 94%);
   margin: 0 auto;
   padding: 1.5rem 0 2.5rem;
 }
 
 .home-logo {
-  width: 50%;
+  width: 75%;
   height: auto;
   border-radius: 8px;
   margin-bottom: 1rem;
