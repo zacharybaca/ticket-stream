@@ -29,6 +29,7 @@ const emitIncidentEvent = (req, eventType, incident, extra = {}) => {
     type: eventType,
     incidentId: incident._id?.toString(),
     incidentCode: incident.incidentCode,
+    title: incident.title,
     status: incident.status,
     priority: incident.priority,
     severity: incident.severity,

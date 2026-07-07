@@ -71,7 +71,7 @@ const createNotification = async ({
       });
     } catch (error) {
       console.error(
-        `Slack notification failed for '${type}' (${title}): ${error.message}`,
+        `Slack notification failed for '${type}' (${title}) user=${userId || 'none'} incident=${incidentId || 'none'}: ${error.message}`,
       );
     }
   }

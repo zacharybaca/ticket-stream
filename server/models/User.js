@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["observer", "analyst", "manager", "admin", "user"],
+      enum: ["observer", "analyst", "manager", "admin"],
       default: "analyst",
     },
     avatar: { type: String },
@@ -30,6 +30,18 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+userSchema.pre("validate", function (next) {
+  if (this.role === "user") {
+    this.role = "analyst";
+  }
+
+  if (this.isAdmin) {
+    this.role = "admin";
+  }
+
+  next();
+});
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {

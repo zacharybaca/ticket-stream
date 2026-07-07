@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useFetcher } from '../../hooks/useFetcher.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useIncidentLiveUpdates } from '../../hooks/useIncidentLiveUpdates.js';
 import { fetchIncidents, fetchIncidentSummary } from '../../lib/incidentsApi.js';
 import StatusBadge from '../Incidents/StatusBadge.jsx';
@@ -18,6 +19,7 @@ const defaultFilters = {
 
 const IncidentsDashboard = () => {
   const { fetcher } = useFetcher();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [filters, setFilters] = useState(defaultFilters);
   const [incidents, setIncidents] = useState([]);
@@ -70,8 +72,47 @@ const IncidentsDashboard = () => {
     };
   }, []);
 
+  const eventMatchesFilters = useCallback(
+    (payload = {}) => {
+      if (!payload?.incidentId) return true;
+
+      if (filters.status && payload.status !== filters.status) {
+        return false;
+      }
+
+      if (filters.priority && payload.priority !== filters.priority) {
+        return false;
+      }
+
+      if (filters.assignee === 'me' && payload.assigneeId !== user?._id) {
+        return false;
+      }
+
+      if (filters.search) {
+        const haystack = [
+          payload.incidentCode,
+          payload.title,
+          payload.application,
+          payload.service,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+
+        if (!haystack.includes(filters.search.toLowerCase())) {
+          return false;
+        }
+      }
+
+      return true;
+    },
+    [filters, user?._id]
+  );
+
   useIncidentLiveUpdates({
-    onIncidentEvent: () => {
+    onIncidentEvent: (payload) => {
+      if (!eventMatchesFilters(payload)) return;
+
       if (liveReloadTimeoutRef.current) {
         clearTimeout(liveReloadTimeoutRef.current);
       }

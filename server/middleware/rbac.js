@@ -21,8 +21,11 @@ const ROLE_PERMISSIONS = {
 const normalizeRole = (user) => {
   if (!user) return "observer";
   if (user.isAdmin || user.role === "admin") return "admin";
+  if (user.role === "user") return "analyst";
   if (["analyst", "manager", "observer"].includes(user.role)) return user.role;
-  return "analyst";
+
+  console.warn(`Unknown role '${user.role}', defaulting to observer`);
+  return "observer";
 };
 
 const hasPermission = (role, permission) => {

@@ -92,7 +92,7 @@ const PostmortemEditor = ({ value, onSave, onExport }) => {
             className="secondary-btn"
             onClick={() => onExport('json')}
           >
-            Record export
+            Record JSON export
           </button>
         </div>
       </form>
