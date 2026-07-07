@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../hooks/useAuth.js';
+import { NavbarLogo } from '../Logo/NavbarLogo.jsx';
 import './nav-bar.css';
 
 const NavBar = () => {
@@ -38,7 +39,7 @@ const NavBar = () => {
     <nav className="main-nav">
       <div className="nav-container">
         <Link to="/" className="nav-logo-link">
-          <h1>Ticket Stream</h1>
+          <NavbarLogo />
         </Link>
 
         <ul className="nav-links">
