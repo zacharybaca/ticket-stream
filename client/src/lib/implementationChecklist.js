@@ -1,12 +1,3 @@
-import {
-  AlignmentType,
-  Document,
-  HeadingLevel,
-  Packer,
-  Paragraph,
-  TextRun,
-} from 'docx';
-
 export const implementationChecklistSections = [
   {
     title: 'Project foundation',
@@ -72,26 +63,25 @@ export const implementationChecklistSections = [
 
 const buildChecklistParagraphs = () =>
   implementationChecklistSections.flatMap((section) => [
-    new Paragraph({
+    {
+      type: 'heading',
       text: section.title,
-      heading: HeadingLevel.HEADING_1,
-      spacing: { before: 320, after: 120 },
-    }),
-    new Paragraph({
+    },
+    {
+      type: 'description',
       text: section.description,
-      spacing: { after: 180 },
-    }),
-    ...section.tasks.map(
-      (task) =>
-        new Paragraph({
-          children: [new TextRun(`☐ ${task}`)],
-          spacing: { after: 100 },
-        })
-    ),
+    },
+    ...section.tasks.map((task) => ({
+      type: 'task',
+      text: task,
+    })),
   ]);
 
-export const buildImplementationChecklistDocument = () =>
-  new Document({
+export const buildImplementationChecklistDocument = async () => {
+  const { AlignmentType, Document, HeadingLevel, Paragraph, TextRun } =
+    await import('docx');
+
+  return new Document({
     sections: [
       {
         children: [
@@ -106,15 +96,38 @@ export const buildImplementationChecklistDocument = () =>
             alignment: AlignmentType.CENTER,
             spacing: { after: 260 },
           }),
-          ...buildChecklistParagraphs(),
+          ...buildChecklistParagraphs().map((entry) => {
+            if (entry.type === 'heading') {
+              return new Paragraph({
+                text: entry.text,
+                heading: HeadingLevel.HEADING_1,
+                spacing: { before: 320, after: 120 },
+              });
+            }
+
+            if (entry.type === 'description') {
+              return new Paragraph({
+                text: entry.text,
+                spacing: { after: 180 },
+              });
+            }
+
+            return new Paragraph({
+              children: [new TextRun(`☐ ${entry.text}`)],
+              spacing: { after: 100 },
+            });
+          }),
         ],
       },
     ],
   });
+};
 
 export const downloadImplementationChecklist = async () => {
+  const { Packer } = await import('docx');
   const fileName = 'ticket-stream-implementation-checklist.docx';
-  const blob = await Packer.toBlob(buildImplementationChecklistDocument());
+  const checklistDocument = await buildImplementationChecklistDocument();
+  const blob = await Packer.toBlob(checklistDocument);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
 

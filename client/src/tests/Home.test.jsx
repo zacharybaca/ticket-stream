@@ -3,7 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Home from '../components/Pages/Home';
 
-const mockDownloadImplementationChecklist = vi.fn();
+const { mockDownloadImplementationChecklist } = vi.hoisted(() => ({
+  mockDownloadImplementationChecklist: vi.fn(),
+}));
 
 vi.mock('../hooks/useAuth.js', () => ({
   useAuth: () => ({ user: null }),
