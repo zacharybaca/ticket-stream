@@ -130,13 +130,22 @@ export const downloadImplementationChecklist = async () => {
   const blob = await Packer.toBlob(checklistDocument);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
+  const cleanupDownload = () => {
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
 
   link.href = url;
   link.download = fileName;
+  link.addEventListener(
+    'click',
+    () => {
+      window.requestAnimationFrame(cleanupDownload);
+    },
+    { once: true }
+  );
   document.body.appendChild(link);
   link.click();
-  link.remove();
-  window.setTimeout(() => window.URL.revokeObjectURL(url), 5000);
 
   return fileName;
 };
