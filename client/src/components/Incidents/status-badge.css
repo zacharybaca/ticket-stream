@@ -1,0 +1,41 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-open {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+.status-investigating {
+  color: #92400e;
+  background-color: #ffedd5;
+}
+
+.status-monitoring {
+  color: #3730a3;
+  background-color: #e0e7ff;
+}
+
+.status-resolved {
+  color: #0f766e;
+  background-color: #ccfbf1;
+}
+
+.status-closed {
+  color: #155e75;
+  background-color: #cffafe;
+}
+
+.status-unknown {
+  color: #374151;
+  background-color: #e5e7eb;
+}

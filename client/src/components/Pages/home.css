@@ -1,0 +1,73 @@
+.home-page {
+  width: min(1100px, 94%);
+  margin: 0 auto;
+  padding: 1.5rem 0 2.5rem;
+}
+
+.hero-section {
+  background: linear-gradient(140deg, #111827, #0f766e);
+  color: #fff;
+  border-radius: 14px;
+  padding: 2rem 1.5rem;
+}
+
+.hero-section h1 {
+  margin: 0;
+  font-size: 2.1rem;
+}
+
+.home-lead {
+  margin: 0.75rem 0 0;
+  width: min(780px, 100%);
+  color: #dbeafe;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.primary-home-btn,
+.secondary-home-btn {
+  text-decoration: none;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.primary-home-btn {
+  background-color: #fff;
+  color: #111827;
+}
+
+.secondary-home-btn {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.feature-grid {
+  margin-top: 1.15rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+
+.feature-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.feature-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.feature-card p {
+  margin: 0.5rem 0 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
