@@ -1,0 +1,6 @@
+# Keep large generated, binary, and lock files out of Copilot context
+client/package-lock.json
+server/package-lock.json
+package-lock.json
+client/src/assets/*.png
+docs/*.docx
