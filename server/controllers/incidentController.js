@@ -57,10 +57,13 @@ const emitIncidentEvent = (req, eventType, incident, extra = {}) => {
 
 const createIncidentNotification = async ({ req, incident, type, title, message }) => {
   const io = req.app.get("io");
+  const targetUserId = incident.assignee || incident.reportedBy;
+
+  if (!targetUserId) return;
 
   await createNotification({
     io,
-    userId: incident.assignee || incident.reportedBy,
+    userId: targetUserId,
     incidentId: incident._id,
     audience: "user",
     type,

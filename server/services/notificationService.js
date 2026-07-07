@@ -70,7 +70,9 @@ const createNotification = async ({
         body: JSON.stringify({ text: `*${title}*\n${message}` }),
       });
     } catch (error) {
-      console.error("Slack notification failed:", error.message);
+      console.error(
+        `Slack notification failed for '${type}' (${title}): ${error.message}`,
+      );
     }
   }
 

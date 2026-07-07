@@ -20,7 +20,17 @@ const getActiveSlaPolicy = async () => {
 
 const evaluateIncidentSla = (incident, policy = DEFAULT_POLICY) => {
   const priority = incident.priority || "p3";
-  const targetHours = policy?.priorities?.[priority] || DEFAULT_POLICY.priorities.p3;
+  const priorityHours = policy?.priorities?.[priority];
+  const targetHours =
+    typeof priorityHours === "number"
+      ? priorityHours
+      : DEFAULT_POLICY.priorities.p3;
+
+  if (typeof priorityHours !== "number") {
+    console.warn(
+      `Unknown incident priority '${priority}', defaulting SLA target to p3`,
+    );
+  }
 
   const createdAt = new Date(incident.createdAt || Date.now());
   const deadlineAt = new Date(createdAt.getTime() + targetHours * 60 * 60 * 1000);

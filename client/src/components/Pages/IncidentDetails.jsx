@@ -45,30 +45,39 @@ const IncidentDetails = () => {
     [incident?.timeline]
   );
 
-  const loadIncident = useCallback(async () => {
-    setLoading(true);
-    const [incidentResponse, postmortemResponse] = await Promise.all([
-      fetchIncidentById(fetcher, incidentId),
-      fetchIncidentPostmortem(fetcher, incidentId),
-    ]);
-    setLoading(false);
-
+  const loadIncidentOnly = useCallback(async () => {
+    const incidentResponse = await fetchIncidentById(fetcher, incidentId);
     if (!incidentResponse.success) {
       toast.error(incidentResponse.error || 'Could not load incident details.');
       navigate('/incidents');
-      return;
-    }
-
-    if (!postmortemResponse.success) {
-      toast.error(postmortemResponse.error || 'Could not load postmortem data.');
-      setPostmortem(null);
-    } else {
-      setPostmortem(postmortemResponse.data.postmortem || null);
+      return false;
     }
 
     setIncident(incidentResponse.data);
     setStatusForm((current) => ({ ...current, status: incidentResponse.data.status }));
+    return true;
   }, [fetcher, incidentId, navigate]);
+
+  const loadPostmortem = useCallback(async () => {
+    const postmortemResponse = await fetchIncidentPostmortem(fetcher, incidentId);
+
+    if (!postmortemResponse.success) {
+      toast.error(postmortemResponse.error || 'Could not load postmortem data.');
+      setPostmortem(null);
+      return;
+    }
+
+    setPostmortem(postmortemResponse.data.postmortem || null);
+  }, [fetcher, incidentId]);
+
+  const loadIncident = useCallback(async () => {
+    setLoading(true);
+    const loaded = await loadIncidentOnly();
+    if (loaded) {
+      await loadPostmortem();
+    }
+    setLoading(false);
+  }, [loadIncidentOnly, loadPostmortem]);
 
   useEffect(() => {
     loadIncident();
@@ -76,7 +85,7 @@ const IncidentDetails = () => {
 
   useIncidentLiveUpdates({
     incidentId,
-    onIncidentEvent: () => loadIncident(),
+    onIncidentEvent: () => loadIncidentOnly(),
   });
 
   const handleStatusSubmit = async (event) => {

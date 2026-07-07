@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import RoleManagementPanel from '../Admin/RoleManagementPanel.jsx';
 import { useFetcher } from '../../hooks/useFetcher.js';
@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     const response = await fetchAdminUsers(fetcher);
     setLoading(false);
@@ -21,11 +21,11 @@ const AdminDashboard = () => {
     }
 
     setUsers(response.data.users || []);
-  };
+  }, [fetcher]);
 
   useEffect(() => {
     loadUsers();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadUsers]);
 
   const handleUpdateRole = async (userId, role) => {
     const response = await updateUserRoleRequest(fetcher, userId, role);
@@ -49,7 +49,11 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {loading ? <p>Loading users...</p> : <RoleManagementPanel users={users} onUpdateRole={handleUpdateRole} />}
+      {loading ? (
+        <p>Loading users...</p>
+      ) : (
+        <RoleManagementPanel users={users} onUpdateRole={handleUpdateRole} />
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useFetcher } from '../../hooks/useFetcher.js';
@@ -28,6 +28,7 @@ const IncidentsDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const liveReloadTimeoutRef = useRef(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -61,9 +62,23 @@ const IncidentsDashboard = () => {
     loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    return () => {
+      if (liveReloadTimeoutRef.current) {
+        clearTimeout(liveReloadTimeoutRef.current);
+      }
+    };
+  }, []);
+
   useIncidentLiveUpdates({
     onIncidentEvent: () => {
-      loadData();
+      if (liveReloadTimeoutRef.current) {
+        clearTimeout(liveReloadTimeoutRef.current);
+      }
+
+      liveReloadTimeoutRef.current = setTimeout(() => {
+        loadData();
+      }, 250);
     },
   });
 
