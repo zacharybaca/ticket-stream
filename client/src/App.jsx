@@ -7,16 +7,20 @@ import Home from './components/Pages/Home';
 import IncidentsDashboard from './components/Pages/IncidentsDashboard';
 import IncidentCreate from './components/Pages/IncidentCreate';
 import IncidentDetails from './components/Pages/IncidentDetails';
+import ForgotPassword from './components/Pages/ForgotPassword';
+import ResetPassword from './components/Pages/ResetPassword';
+import Profile from './components/Pages/Profile';
+import Settings from './components/Pages/Settings';
+import AdminDashboard from './components/Pages/AdminDashboard';
 import ProtectedRoute from './components/Utility/ProtectedRoute/ProtectedRoute';
+import AdminRoute from './components/Utility/AdminRoute/AdminRoute';
 import './App.css';
 
-// The Layout Component: Wraps pages with Header and Footer
 const Layout = () => {
   return (
     <div className="app-container">
       <NavBar />
       <main className="main-content">
-        {/* Outlet renders the child route's element (e.g., Home, Login) */}
         <Outlet />
       </main>
       <Footer />
@@ -27,19 +31,25 @@ const Layout = () => {
 function App() {
   return (
     <Routes>
-      {/* Wrap all routes in the Layout */}
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="resetpassword/:token" element={<ResetPassword />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="incidents" element={<IncidentsDashboard />} />
           <Route path="incidents/new" element={<IncidentCreate />} />
           <Route path="incidents/:incidentId" element={<IncidentDetails />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
 
-        {/* Catch-all for 404s */}
+        <Route element={<AdminRoute />}>
+          <Route path="admin/dashboard" element={<AdminDashboard />} />
+        </Route>
+
         <Route
           path="*"
           element={

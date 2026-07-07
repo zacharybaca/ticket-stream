@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ["observer", "analyst", "manager", "admin", "user"],
+      default: "analyst",
     },
     avatar: { type: String },
     avatarPublicId: { type: String, default: "" },
@@ -31,7 +31,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Encrypt password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
@@ -41,12 +40,10 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Compare entered password against stored hash
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Generate a short-lived password reset token
 userSchema.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString("hex");
 
@@ -55,13 +52,11 @@ userSchema.methods.getResetPasswordToken = function () {
     .update(resetToken)
     .digest("hex");
 
-  // Expires in 10 minutes
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };
 
-// Generate a 24-hour email verification token
 userSchema.methods.getVerificationToken = function () {
   const token = crypto.randomBytes(20).toString("hex");
 

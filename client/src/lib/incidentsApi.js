@@ -8,18 +8,18 @@ export const fetchIncidents = (fetcher, query = {}) => {
   });
 
   const queryString = searchParams.toString();
-  const route = queryString
-    ? `/api/incidents?${queryString}`
-    : '/api/incidents';
+  const route = queryString ? `/api/incidents?${queryString}` : '/api/incidents';
 
   return fetcher(route);
 };
 
-export const fetchIncidentSummary = (fetcher) =>
-  fetcher('/api/incidents/summary');
+export const fetchIncidentSummary = (fetcher) => fetcher('/api/incidents/summary');
 
 export const fetchIncidentById = (fetcher, incidentId) =>
   fetcher(`/api/incidents/${incidentId}`);
+
+export const fetchIncidentSla = (fetcher, incidentId) =>
+  fetcher(`/api/incidents/${incidentId}/sla`);
 
 export const createIncidentRequest = (fetcher, payload) =>
   fetcher('/api/incidents', {
@@ -43,4 +43,19 @@ export const updateIncidentRequest = (fetcher, incidentId, payload) =>
   fetcher(`/api/incidents/${incidentId}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
+  });
+
+export const fetchIncidentPostmortem = (fetcher, incidentId) =>
+  fetcher(`/api/incidents/${incidentId}/postmortem`);
+
+export const upsertIncidentPostmortem = (fetcher, incidentId, payload) =>
+  fetcher(`/api/incidents/${incidentId}/postmortem`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+
+export const updateIncidentPostmortemExport = (fetcher, incidentId, format = 'json') =>
+  fetcher(`/api/incidents/${incidentId}/postmortem/export`, {
+    method: 'PATCH',
+    body: JSON.stringify({ format }),
   });

@@ -12,6 +12,8 @@ const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  const isAdmin = user?.isAdmin || user?.role === 'admin';
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -86,18 +88,12 @@ const NavBar = () => {
                   />
                 ) : (
                   <div className="nav-avatar-fallback">
-                    {user.username
-                      ? user.username.charAt(0).toUpperCase()
-                      : '?'}
+                    {user.username ? user.username.charAt(0).toUpperCase() : '?'}
                   </div>
                 )}
 
-                <span className="nav-username">
-                  {user.name || user.username}
-                </span>
-                <span className={`chevron ${isDropdownOpen ? 'open' : ''}`}>
-                  ▼
-                </span>
+                <span className="nav-username">{user.name || user.username}</span>
+                <span className={`chevron ${isDropdownOpen ? 'open' : ''}`}>▼</span>
               </button>
 
               {isDropdownOpen && (
@@ -108,23 +104,15 @@ const NavBar = () => {
 
                   <div className="dropdown-divider"></div>
 
-                  <Link
-                    to="/profile"
-                    className="dropdown-item"
-                    onClick={closeMenu}
-                  >
+                  <Link to="/profile" className="dropdown-item" onClick={closeMenu}>
                     My Profile
                   </Link>
 
-                  <Link
-                    to="/settings"
-                    className="dropdown-item"
-                    onClick={closeMenu}
-                  >
+                  <Link to="/settings" className="dropdown-item" onClick={closeMenu}>
                     Settings
                   </Link>
 
-                  {user.isAdmin && (
+                  {isAdmin && (
                     <Link
                       to="/admin/dashboard"
                       className="dropdown-item"
@@ -136,10 +124,7 @@ const NavBar = () => {
 
                   <div className="dropdown-divider"></div>
 
-                  <button
-                    onClick={handleLogout}
-                    className="dropdown-item logout-item"
-                  >
+                  <button onClick={handleLogout} className="dropdown-item logout-item">
                     Logout
                   </button>
                 </div>

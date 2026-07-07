@@ -7,6 +7,8 @@ import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import incidentRoutes from "./routes/incidentRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -20,15 +22,12 @@ const corsOptions = {
   credentials: true,
 };
 
-// Security headers
 app.use(helmet());
 
-// Request logging (skip in test environment)
 if (process.env.NODE_ENV !== "test") {
   app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 }
 
-// General API rate limiter — 100 req / 15 min per IP
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -38,7 +37,6 @@ const apiLimiter = rateLimit({
 });
 app.use("/api", apiLimiter);
 
-// Stricter auth limiter — 20 req / 15 min per IP
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -50,18 +48,17 @@ const authLimiter = rateLimit({
 });
 app.use("/api/auth", authLimiter);
 
-// Middleware
 app.use(cors(corsOptions));
-app.use(cookieParser()); // Must come before routes to parse JWT cookies
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/incidents", incidentRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
 
-// Error handling
 app.use(errorHandler);
 
 export default app;

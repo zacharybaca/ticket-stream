@@ -1,5 +1,11 @@
 import asyncHandler from "express-async-handler";
 import Incident from "../models/Incident.js";
+import { createNotification } from "../services/notificationService.js";
+import {
+  attachIncidentSla,
+  evaluateIncidentSla,
+  getActiveSlaPolicy,
+} from "../services/slaService.js";
 
 const createTimelineEntry = ({
   type,
@@ -14,6 +20,67 @@ const createTimelineEntry = ({
   from,
   to,
 });
+
+const emitIncidentEvent = (req, eventType, incident, extra = {}) => {
+  const io = req.app.get("io");
+  if (!io) return;
+
+  const payload = {
+    type: eventType,
+    incidentId: incident._id?.toString(),
+    incidentCode: incident.incidentCode,
+    status: incident.status,
+    priority: incident.priority,
+    severity: incident.severity,
+    application: incident.application,
+    service: incident.service,
+    assigneeId: incident.assignee?._id?.toString() || incident.assignee?.toString() || null,
+    reportedById:
+      incident.reportedBy?._id?.toString() || incident.reportedBy?.toString() || null,
+    actor: req.user
+      ? {
+          id: req.user._id?.toString(),
+          name: req.user.name,
+          username: req.user.username,
+        }
+      : null,
+    timestamp: new Date().toISOString(),
+    ...extra,
+  };
+
+  io.emit("incident:updated", payload);
+  io.to(`incident:${payload.incidentId}`).emit("incident:detail-updated", payload);
+
+  if (payload.assigneeId) io.to(payload.assigneeId).emit("incident:user-updated", payload);
+  if (payload.reportedById) io.to(payload.reportedById).emit("incident:user-updated", payload);
+};
+
+const createIncidentNotification = async ({ req, incident, type, title, message }) => {
+  const io = req.app.get("io");
+
+  await createNotification({
+    io,
+    userId: incident.assignee || incident.reportedBy,
+    incidentId: incident._id,
+    audience: "user",
+    type,
+    title,
+    message,
+    metadata: {
+      incidentCode: incident.incidentCode,
+      incidentId: incident._id,
+      status: incident.status,
+      priority: incident.priority,
+      severity: incident.severity,
+    },
+    channels: {
+      inApp: true,
+      email: false,
+      slack: false,
+      webhook: false,
+    },
+  });
+};
 
 const listIncidents = asyncHandler(async (req, res) => {
   const page = Number.parseInt(req.query.page || "1", 10);
@@ -38,7 +105,7 @@ const listIncidents = asyncHandler(async (req, res) => {
     ];
   }
 
-  const [incidents, total] = await Promise.all([
+  const [incidents, total, policy] = await Promise.all([
     Incident.find(filters)
       .populate("assignee", "name username email")
       .populate("reportedBy", "name username email")
@@ -46,10 +113,15 @@ const listIncidents = asyncHandler(async (req, res) => {
       .skip(skip)
       .limit(limit),
     Incident.countDocuments(filters),
+    getActiveSlaPolicy(),
   ]);
 
+  const incidentsWithSla = await Promise.all(
+    incidents.map((incident) => attachIncidentSla(incident, policy)),
+  );
+
   res.json({
-    incidents,
+    incidents: incidentsWithSla,
     pagination: {
       page,
       limit,
@@ -63,9 +135,7 @@ const getIncidentSummary = asyncHandler(async (_req, res) => {
   const [statusSummary, prioritySummary, openCount, criticalCount] =
     await Promise.all([
       Incident.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
-      Incident.aggregate([
-        { $group: { _id: "$priority", count: { $sum: 1 } } },
-      ]),
+      Incident.aggregate([{ $group: { _id: "$priority", count: { $sum: 1 } } }]),
       Incident.countDocuments({
         status: { $in: ["open", "investigating", "monitoring"] },
       }),
@@ -84,17 +154,38 @@ const getIncidentSummary = asyncHandler(async (_req, res) => {
 });
 
 const getIncidentById = asyncHandler(async (req, res) => {
-  const incident = await Incident.findById(req.params.id)
-    .populate("assignee", "name username email")
-    .populate("reportedBy", "name username email")
-    .populate("timeline.createdBy", "name username email");
+  const [incident, policy] = await Promise.all([
+    Incident.findById(req.params.id)
+      .populate("assignee", "name username email")
+      .populate("reportedBy", "name username email")
+      .populate("timeline.createdBy", "name username email"),
+    getActiveSlaPolicy(),
+  ]);
 
   if (!incident) {
     res.status(404);
     throw new Error("Incident not found");
   }
 
-  res.json(incident);
+  res.json(await attachIncidentSla(incident, policy));
+});
+
+const getIncidentSla = asyncHandler(async (req, res) => {
+  const [incident, policy] = await Promise.all([
+    Incident.findById(req.params.id).lean(),
+    getActiveSlaPolicy(),
+  ]);
+
+  if (!incident) {
+    res.status(404);
+    throw new Error("Incident not found");
+  }
+
+  res.json({
+    incidentId: incident._id,
+    incidentCode: incident.incidentCode,
+    sla: evaluateIncidentSla(incident, policy),
+  });
 });
 
 const createIncident = asyncHandler(async (req, res) => {
@@ -137,12 +228,26 @@ const createIncident = asyncHandler(async (req, res) => {
     ],
   });
 
-  const hydratedIncident = await Incident.findById(incident._id)
-    .populate("assignee", "name username email")
-    .populate("reportedBy", "name username email")
-    .populate("timeline.createdBy", "name username email");
+  const [hydratedIncident, policy] = await Promise.all([
+    Incident.findById(incident._id)
+      .populate("assignee", "name username email")
+      .populate("reportedBy", "name username email")
+      .populate("timeline.createdBy", "name username email"),
+    getActiveSlaPolicy(),
+  ]);
 
-  res.status(201).json(hydratedIncident);
+  const incidentWithSla = await attachIncidentSla(hydratedIncident, policy);
+
+  emitIncidentEvent(req, "incident-created", incidentWithSla);
+  await createIncidentNotification({
+    req,
+    incident: incidentWithSla,
+    type: "incident-created",
+    title: `Incident ${incidentWithSla.incidentCode} created`,
+    message: incidentWithSla.title,
+  });
+
+  res.status(201).json(incidentWithSla);
 });
 
 const updateIncident = asyncHandler(async (req, res) => {
@@ -171,10 +276,13 @@ const updateIncident = asyncHandler(async (req, res) => {
     }
   });
 
+  let assignmentChanged = false;
+
   if (req.body.assignee !== undefined) {
-    const previousAssignee = incident.assignee
-      ? incident.assignee.toString()
-      : "";
+    const previousAssignee = incident.assignee ? incident.assignee.toString() : "";
+    const nextAssignee = req.body.assignee || "";
+    assignmentChanged = previousAssignee !== nextAssignee;
+
     incident.assignee = req.body.assignee || null;
 
     incident.timeline.push(
@@ -185,7 +293,7 @@ const updateIncident = asyncHandler(async (req, res) => {
           : "Incident unassigned from current owner",
         createdBy: req.user._id,
         from: previousAssignee,
-        to: req.body.assignee || "",
+        to: nextAssignee,
       }),
     );
   }
@@ -201,12 +309,32 @@ const updateIncident = asyncHandler(async (req, res) => {
   }
 
   const savedIncident = await incident.save();
-  const hydratedIncident = await Incident.findById(savedIncident._id)
-    .populate("assignee", "name username email")
-    .populate("reportedBy", "name username email")
-    .populate("timeline.createdBy", "name username email");
 
-  res.json(hydratedIncident);
+  const [hydratedIncident, policy] = await Promise.all([
+    Incident.findById(savedIncident._id)
+      .populate("assignee", "name username email")
+      .populate("reportedBy", "name username email")
+      .populate("timeline.createdBy", "name username email"),
+    getActiveSlaPolicy(),
+  ]);
+
+  const incidentWithSla = await attachIncidentSla(hydratedIncident, policy);
+
+  emitIncidentEvent(req, "incident-updated", incidentWithSla);
+
+  if (assignmentChanged) {
+    await createIncidentNotification({
+      req,
+      incident: incidentWithSla,
+      type: "incident-assigned",
+      title: `Incident ${incidentWithSla.incidentCode} assignment updated`,
+      message: incidentWithSla.assignee
+        ? `Assigned to ${incidentWithSla.assignee.name || incidentWithSla.assignee.username}`
+        : "Incident has been unassigned",
+    });
+  }
+
+  res.json(incidentWithSla);
 });
 
 const updateIncidentStatus = asyncHandler(async (req, res) => {
@@ -236,12 +364,31 @@ const updateIncidentStatus = asyncHandler(async (req, res) => {
   );
 
   const savedIncident = await incident.save();
-  const hydratedIncident = await Incident.findById(savedIncident._id)
-    .populate("assignee", "name username email")
-    .populate("reportedBy", "name username email")
-    .populate("timeline.createdBy", "name username email");
 
-  res.json(hydratedIncident);
+  const [hydratedIncident, policy] = await Promise.all([
+    Incident.findById(savedIncident._id)
+      .populate("assignee", "name username email")
+      .populate("reportedBy", "name username email")
+      .populate("timeline.createdBy", "name username email"),
+    getActiveSlaPolicy(),
+  ]);
+
+  const incidentWithSla = await attachIncidentSla(hydratedIncident, policy);
+
+  emitIncidentEvent(req, "incident-status-updated", incidentWithSla, {
+    previousStatus,
+    nextStatus: status,
+  });
+
+  await createIncidentNotification({
+    req,
+    incident: incidentWithSla,
+    type: "incident-status-updated",
+    title: `Incident ${incidentWithSla.incidentCode} status changed`,
+    message: `${previousStatus} → ${status}`,
+  });
+
+  res.json(incidentWithSla);
 });
 
 const addIncidentComment = asyncHandler(async (req, res) => {
@@ -267,18 +414,34 @@ const addIncidentComment = asyncHandler(async (req, res) => {
   );
 
   const savedIncident = await incident.save();
-  const hydratedIncident = await Incident.findById(savedIncident._id)
-    .populate("assignee", "name username email")
-    .populate("reportedBy", "name username email")
-    .populate("timeline.createdBy", "name username email");
 
-  res.json(hydratedIncident);
+  const [hydratedIncident, policy] = await Promise.all([
+    Incident.findById(savedIncident._id)
+      .populate("assignee", "name username email")
+      .populate("reportedBy", "name username email")
+      .populate("timeline.createdBy", "name username email"),
+    getActiveSlaPolicy(),
+  ]);
+
+  const incidentWithSla = await attachIncidentSla(hydratedIncident, policy);
+
+  emitIncidentEvent(req, "incident-comment-added", incidentWithSla);
+  await createIncidentNotification({
+    req,
+    incident: incidentWithSla,
+    type: "incident-comment-added",
+    title: `New comment on ${incidentWithSla.incidentCode}`,
+    message,
+  });
+
+  res.json(incidentWithSla);
 });
 
 export {
   addIncidentComment,
   createIncident,
   getIncidentById,
+  getIncidentSla,
   getIncidentSummary,
   listIncidents,
   updateIncident,

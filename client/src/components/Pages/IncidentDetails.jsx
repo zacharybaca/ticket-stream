@@ -1,16 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useFetcher } from '../../hooks/useFetcher.js';
+import { useIncidentLiveUpdates } from '../../hooks/useIncidentLiveUpdates.js';
 import {
   addIncidentCommentRequest,
   fetchIncidentById,
+  fetchIncidentPostmortem,
+  updateIncidentPostmortemExport,
   updateIncidentRequest,
   updateIncidentStatusRequest,
+  upsertIncidentPostmortem,
 } from '../../lib/incidentsApi.js';
 import StatusBadge from '../Incidents/StatusBadge.jsx';
+import IncidentSlaBadge from '../Incidents/IncidentSlaBadge.jsx';
+import SlaCountdown from '../Incidents/SlaCountdown.jsx';
+import PostmortemEditor from '../Postmortems/PostmortemEditor.jsx';
+import PostmortemViewer from '../Postmortems/PostmortemViewer.jsx';
 import './incidents.css';
 
 const IncidentDetails = () => {
@@ -20,9 +28,13 @@ const IncidentDetails = () => {
   const { user } = useAuth();
 
   const [incident, setIncident] = useState(null);
+  const [postmortem, setPostmortem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [statusForm, setStatusForm] = useState({ status: '', note: '' });
+
+  const canEditPostmortem =
+    user?.isAdmin || ['admin', 'manager', 'analyst'].includes(user?.role);
 
   const timeline = useMemo(
     () =>
@@ -33,33 +45,43 @@ const IncidentDetails = () => {
     [incident?.timeline]
   );
 
-  const loadIncident = async () => {
+  const loadIncident = useCallback(async () => {
     setLoading(true);
-    const response = await fetchIncidentById(fetcher, incidentId);
+    const [incidentResponse, postmortemResponse] = await Promise.all([
+      fetchIncidentById(fetcher, incidentId),
+      fetchIncidentPostmortem(fetcher, incidentId),
+    ]);
     setLoading(false);
 
-    if (!response.success) {
-      toast.error(response.error || 'Could not load incident details.');
+    if (!incidentResponse.success) {
+      toast.error(incidentResponse.error || 'Could not load incident details.');
       navigate('/incidents');
       return;
     }
 
-    setIncident(response.data);
-    setStatusForm((current) => ({ ...current, status: response.data.status }));
-  };
+    if (!postmortemResponse.success) {
+      toast.error(postmortemResponse.error || 'Could not load postmortem data.');
+      setPostmortem(null);
+    } else {
+      setPostmortem(postmortemResponse.data.postmortem || null);
+    }
+
+    setIncident(incidentResponse.data);
+    setStatusForm((current) => ({ ...current, status: incidentResponse.data.status }));
+  }, [fetcher, incidentId, navigate]);
 
   useEffect(() => {
     loadIncident();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [incidentId]);
+  }, [loadIncident]);
+
+  useIncidentLiveUpdates({
+    incidentId,
+    onIncidentEvent: () => loadIncident(),
+  });
 
   const handleStatusSubmit = async (event) => {
     event.preventDefault();
-    const response = await updateIncidentStatusRequest(
-      fetcher,
-      incidentId,
-      statusForm
-    );
+    const response = await updateIncidentStatusRequest(fetcher, incidentId, statusForm);
     if (!response.success) {
       toast.error(response.error || 'Unable to update status.');
       return;
@@ -99,6 +121,28 @@ const IncidentDetails = () => {
     setCommentText('');
   };
 
+  const handlePostmortemSave = async (payload) => {
+    const response = await upsertIncidentPostmortem(fetcher, incidentId, payload);
+    if (!response.success) {
+      toast.error(response.error || 'Unable to save postmortem.');
+      return;
+    }
+
+    setPostmortem(response.data.postmortem);
+    toast.success('Postmortem saved.');
+  };
+
+  const handlePostmortemExport = async (formatValue) => {
+    const response = await updateIncidentPostmortemExport(fetcher, incidentId, formatValue);
+    if (!response.success) {
+      toast.error(response.error || 'Unable to update export metadata.');
+      return;
+    }
+
+    setPostmortem(response.data.postmortem);
+    toast.success('Export metadata recorded.');
+  };
+
   if (loading) {
     return (
       <div className="incidents-layout">
@@ -118,10 +162,7 @@ const IncidentDetails = () => {
           </h1>
           <p className="muted-text">{incident.description}</p>
         </div>
-        <button
-          className="secondary-btn"
-          onClick={() => navigate('/incidents')}
-        >
+        <button className="secondary-btn" onClick={() => navigate('/incidents')}>
           Back to incidents
         </button>
       </div>
@@ -141,6 +182,16 @@ const IncidentDetails = () => {
             <p className="metric-value">{incident.severity}</p>
           </div>
           <div>
+            <p className="metric-label">SLA</p>
+            <p className="metric-value">
+              <IncidentSlaBadge sla={incident.sla} />
+              <br />
+              <span className="muted-text">
+                Remaining: <SlaCountdown sla={incident.sla} />
+              </span>
+            </p>
+          </div>
+          <div>
             <p className="metric-label">Application / Service</p>
             <p className="metric-value">
               {incident.application}
@@ -150,15 +201,11 @@ const IncidentDetails = () => {
           </div>
           <div>
             <p className="metric-label">Assignee</p>
-            <p className="metric-value">
-              {incident.assignee?.name || 'Unassigned'}
-            </p>
+            <p className="metric-value">{incident.assignee?.name || 'Unassigned'}</p>
           </div>
           <div>
             <p className="metric-label">Reported by</p>
-            <p className="metric-value">
-              {incident.reportedBy?.name || 'Unknown'}
-            </p>
+            <p className="metric-value">{incident.reportedBy?.name || 'Unknown'}</p>
           </div>
         </div>
       </section>
@@ -208,11 +255,7 @@ const IncidentDetails = () => {
           </div>
         </form>
         <div>
-          <button
-            type="button"
-            className="secondary-btn"
-            onClick={handleAssignToMe}
-          >
+          <button type="button" className="secondary-btn" onClick={handleAssignToMe}>
             Assign to me
           </button>
         </div>
@@ -235,6 +278,15 @@ const IncidentDetails = () => {
         </form>
       </section>
 
+      <PostmortemViewer postmortem={postmortem} />
+      {canEditPostmortem && (
+        <PostmortemEditor
+          value={postmortem}
+          onSave={handlePostmortemSave}
+          onExport={handlePostmortemExport}
+        />
+      )}
+
       <section>
         <h3>Activity timeline</h3>
         {timeline.length === 0 ? (
@@ -242,10 +294,7 @@ const IncidentDetails = () => {
         ) : (
           <ul className="timeline">
             {timeline.map((entry, index) => (
-              <li
-                key={`${entry.createdAt}-${index}`}
-                className="timeline-entry"
-              >
+              <li key={`${entry.createdAt}-${index}`} className="timeline-entry">
                 <p className="entry-title">{entry.message}</p>
                 <p className="entry-meta">
                   {entry.type} by {entry.createdBy?.name || 'Unknown'} on{' '}

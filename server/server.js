@@ -6,7 +6,6 @@ import app from "./app.js";
 
 dotenv.config();
 
-// Validate required environment variables before doing anything else
 const REQUIRED_ENV_VARS = ["MONGO_URI", "JWT_SECRET"];
 const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
 if (missingVars.length > 0) {
@@ -39,7 +38,19 @@ io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
   socket.on("join_user_room", (userId) => {
-    socket.join(userId);
+    if (userId) socket.join(userId);
+  });
+
+  socket.on("join_incident_room", (incidentId) => {
+    if (incidentId) socket.join(`incident:${incidentId}`);
+  });
+
+  socket.on("leave_incident_room", (incidentId) => {
+    if (incidentId) socket.leave(`incident:${incidentId}`);
+  });
+
+  socket.on("join_admin_room", () => {
+    socket.join("role:admin");
   });
 
   socket.on("disconnect", () => {

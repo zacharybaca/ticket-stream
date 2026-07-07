@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useFetcher } from '../../hooks/useFetcher.js';
-import {
-  fetchIncidents,
-  fetchIncidentSummary,
-} from '../../lib/incidentsApi.js';
+import { useIncidentLiveUpdates } from '../../hooks/useIncidentLiveUpdates.js';
+import { fetchIncidents, fetchIncidentSummary } from '../../lib/incidentsApi.js';
 import StatusBadge from '../Incidents/StatusBadge.jsx';
+import IncidentSlaBadge from '../Incidents/IncidentSlaBadge.jsx';
+import SlaCountdown from '../Incidents/SlaCountdown.jsx';
 import './incidents.css';
 
 const defaultFilters = {
@@ -29,7 +29,7 @@ const IncidentsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -55,12 +55,17 @@ const IncidentsDashboard = () => {
     setIncidents(incidentsResponse.data.incidents || []);
     setSummary(summaryResponse.data);
     setLoading(false);
-  };
+  }, [fetcher, filters]);
 
   useEffect(() => {
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.search, filters.status, filters.priority, filters.assignee]);
+  }, [loadData]);
+
+  useIncidentLiveUpdates({
+    onIncidentEvent: () => {
+      loadData();
+    },
+  });
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
@@ -76,14 +81,10 @@ const IncidentsDashboard = () => {
         <div>
           <h1>Incident Command Center</h1>
           <p className="muted-text">
-            Monitor client-reported incidents across all applications your team
-            supports.
+            Monitor client-reported incidents across all applications your team supports.
           </p>
         </div>
-        <button
-          className="primary-btn"
-          onClick={() => navigate('/incidents/new')}
-        >
+        <button className="primary-btn" onClick={() => navigate('/incidents/new')}>
           Create Incident
         </button>
       </div>
@@ -111,11 +112,7 @@ const IncidentsDashboard = () => {
           onChange={handleFilterChange}
           placeholder="Search title, app, service, incident code"
         />
-        <select
-          name="status"
-          value={filters.status}
-          onChange={handleFilterChange}
-        >
+        <select name="status" value={filters.status} onChange={handleFilterChange}>
           <option value="">All statuses</option>
           <option value="open">Open</option>
           <option value="investigating">Investigating</option>
@@ -123,22 +120,14 @@ const IncidentsDashboard = () => {
           <option value="resolved">Resolved</option>
           <option value="closed">Closed</option>
         </select>
-        <select
-          name="priority"
-          value={filters.priority}
-          onChange={handleFilterChange}
-        >
+        <select name="priority" value={filters.priority} onChange={handleFilterChange}>
           <option value="">All priorities</option>
           <option value="p1">P1</option>
           <option value="p2">P2</option>
           <option value="p3">P3</option>
           <option value="p4">P4</option>
         </select>
-        <select
-          name="assignee"
-          value={filters.assignee}
-          onChange={handleFilterChange}
-        >
+        <select name="assignee" value={filters.assignee} onChange={handleFilterChange}>
           <option value="">Any assignee</option>
           <option value="me">Assigned to me</option>
         </select>
@@ -154,6 +143,7 @@ const IncidentsDashboard = () => {
               <th>Incident</th>
               <th>Priority</th>
               <th>Status</th>
+              <th>SLA</th>
               <th>Application</th>
               <th>Assignee</th>
               <th>Last updated</th>
@@ -162,9 +152,7 @@ const IncidentsDashboard = () => {
           <tbody>
             {incidents.length === 0 ? (
               <tr>
-                <td colSpan={6}>
-                  No incidents found for the selected filters.
-                </td>
+                <td colSpan={7}>No incidents found for the selected filters.</td>
               </tr>
             ) : (
               incidents.map((incident) => (
@@ -180,6 +168,12 @@ const IncidentsDashboard = () => {
                   <td>{incident.priority?.toUpperCase()}</td>
                   <td>
                     <StatusBadge status={incident.status} />
+                  </td>
+                  <td>
+                    <IncidentSlaBadge sla={incident.sla} />
+                    <div className="muted-text">
+                      <SlaCountdown sla={incident.sla} />
+                    </div>
                   </td>
                   <td>
                     {incident.application}
