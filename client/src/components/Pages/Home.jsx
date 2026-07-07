@@ -1,10 +1,29 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 import logo from '../../assets/ticket_stream_app_logo.png';
+import {
+  downloadImplementationChecklist,
+  implementationChecklistSections,
+} from '../../lib/implementationChecklist.js';
 import './home.css';
 
 const Home = () => {
   const { user } = useAuth();
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
+
+  const handleChecklistDownload = async () => {
+    try {
+      setIsDownloading(true);
+      setDownloadError('');
+      await downloadImplementationChecklist();
+    } catch {
+      setDownloadError('Unable to generate the Word checklist right now.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="home-page">
@@ -61,6 +80,46 @@ const Home = () => {
             integrations.
           </p>
         </article>
+      </section>
+
+      <section className="implementation-section">
+        <div className="implementation-header">
+          <div>
+            <h2>Implementation checklist</h2>
+            <p>
+              Download a Word-ready delivery checklist with the work broken into
+              small implementation sections.
+            </p>
+          </div>
+          <button
+            className="primary-home-btn implementation-download-btn"
+            type="button"
+            onClick={handleChecklistDownload}
+            disabled={isDownloading}
+          >
+            {isDownloading ? 'Generating document...' : 'Download Word checklist'}
+          </button>
+        </div>
+
+        {downloadError ? (
+          <p className="implementation-error" role="alert">
+            {downloadError}
+          </p>
+        ) : null}
+
+        <div className="checklist-grid">
+          {implementationChecklistSections.map((section) => (
+            <article className="checklist-card" key={section.title}>
+              <h3>{section.title}</h3>
+              <p>{section.description}</p>
+              <ul>
+                {section.tasks.map((task) => (
+                  <li key={task}>{task}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
       </section>
     </div>
   );
