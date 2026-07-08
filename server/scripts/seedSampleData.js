@@ -1,3 +1,14 @@
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Recreate __dirname since it is not available in ES Modules by default
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Point dotenv to the .env file one level up in the server folder
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import mongoose from "mongoose";
 import Company from "../models/Company.js";
 import User from "../models/User.js";
