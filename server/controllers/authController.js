@@ -16,7 +16,12 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("User already exists");
   }
 
-  const emailDomain = email.split("@")[1]?.toLowerCase();
+  const parts = email.split("@");
+  if (parts.length !== 2 || !parts[1]) {
+    res.status(400);
+    throw new Error("Invalid email address.");
+  }
+  const emailDomain = parts[1].toLowerCase();
   const company = await Company.findOne({ domain: emailDomain });
 
   if (!company) {

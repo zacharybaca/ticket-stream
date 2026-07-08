@@ -74,8 +74,8 @@ const updateCompany = asyncHandler(async (req, res) => {
     }
   }
 
-  company.name = req.body.name ?? company.name;
-  company.domain = req.body.domain ?? company.domain;
+  company.name = req.body.name || company.name;
+  company.domain = req.body.domain ? req.body.domain.toLowerCase() : company.domain;
   company.description = req.body.description ?? company.description;
   company.industry = req.body.industry ?? company.industry;
   company.website = req.body.website ?? company.website;
