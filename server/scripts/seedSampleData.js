@@ -440,13 +440,26 @@ const buildIncidents = (userByEmail) =>
   }));
 
 const seedIncidents = async (userByEmail) => {
-  await Incident.deleteMany({ tags: "sample-data" });
+  await Incident.deleteMany({
+    $or: [
+      { tags: "sample-data" },
+      { incidentCode: { $in: incidentDefinitions.map((incident) => incident.incidentCode) } },
+    ],
+  });
 
   const incidents = buildIncidents(userByEmail);
 
   for (const incident of incidents) {
+    const sourceIncident = incidentDefinitions.find(
+      (definition) => definition.incidentCode === incident.incidentCode,
+    );
+
     if (!incident.reportedBy) {
       throw new Error(`Missing reportedBy user for ${incident.incidentCode}`);
+    }
+
+    if (sourceIncident?.assigneeEmail && !incident.assignee) {
+      throw new Error(`Missing assignee user for ${incident.incidentCode}`);
     }
 
     for (const entry of incident.timeline) {
