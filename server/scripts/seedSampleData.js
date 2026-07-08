@@ -394,11 +394,15 @@ const upsertUsers = async (companyByDomain) => {
       user.name = userData.name;
       user.username = userData.username;
       user.email = userData.email;
-      user.password = userData.password;
       user.role = userData.role;
       user.isAdmin = userData.isAdmin;
       user.isVerified = true;
       user.company = company._id;
+
+      const passwordMatches = await user.matchPassword(userData.password);
+      if (!passwordMatches) {
+        user.password = userData.password;
+      }
     }
 
     await user.save();
@@ -430,7 +434,7 @@ const buildIncidents = (userByEmail) =>
         type: entry.type,
         message: entry.message,
         from: entry.from || "",
-        to: entry.to || userByEmail.get(entry.toEmail)?.id || "",
+        to: entry.to || userByEmail.get(entry.toEmail)?._id?.toString() || "",
         createdBy: userByEmail.get(entry.createdByEmail)?._id,
         createdAt: entry.createdAt,
       }),
@@ -442,7 +446,7 @@ const buildIncidents = (userByEmail) =>
 const seedIncidents = async (userByEmail) => {
   await Incident.deleteMany({
     $or: [
-      { tags: "sample-data" },
+      { tags: { $in: ["sample-data"] } },
       { incidentCode: { $in: incidentDefinitions.map((incident) => incident.incidentCode) } },
     ],
   });
