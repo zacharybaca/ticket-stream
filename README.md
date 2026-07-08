@@ -55,6 +55,23 @@ npm run dev
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:5000`
 
+### Seed sample companies, users, and incidents
+
+```bash
+npm run seed:sample
+```
+
+This creates demo companies, demo users, and a set of incidents with varied statuses, priorities, and timeline activity for the dashboard and incident detail views.
+
+Sample login password for every seeded account: `DemoPass123!`
+
+- `admin@northwind.io` (admin)
+- `maya@northwind.io`
+- `jordan@northwind.io`
+- `priya@apexcommerce.com`
+- `sam@apexcommerce.com`
+- `alex@vertexhealth.org`
+
 ## API routes
 
 ### Auth
