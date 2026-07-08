@@ -4,9 +4,14 @@ import { MemoryRouter } from 'react-router-dom';
 import Login from '../components/Auth/Login/Login';
 
 const mockFetcher = vi.fn();
+const mockCheckUserAuth = vi.fn();
 
 vi.mock('../hooks/useFetcher.js', () => ({
   useFetcher: () => ({ fetcher: mockFetcher }),
+}));
+
+vi.mock('../hooks/useAuth.js', () => ({
+  useAuth: () => ({ checkUserAuth: mockCheckUserAuth }),
 }));
 
 const renderLogin = (initialEntries = ['/login']) =>
@@ -19,6 +24,7 @@ const renderLogin = (initialEntries = ['/login']) =>
 describe('Login', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCheckUserAuth.mockResolvedValue(undefined);
   });
 
   it('renders the login form', () => {
@@ -60,6 +66,23 @@ describe('Login', () => {
           body: expect.stringContaining('user@example.com'),
         })
       );
+    });
+  });
+
+  it('calls checkUserAuth after a successful login', async () => {
+    mockFetcher.mockResolvedValue({ success: true, data: {} });
+    renderLogin();
+
+    fireEvent.change(document.querySelector('input[type="email"]'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(document.querySelector('input[type="password"]'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
+    await waitFor(() => {
+      expect(mockCheckUserAuth).toHaveBeenCalledTimes(1);
     });
   });
 });

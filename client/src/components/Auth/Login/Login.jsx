@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../../hooks/useAuth.js';
 import { useFetcher } from '../../../hooks/useFetcher.js';
 import '../auth-forms.css';
 
@@ -8,6 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const { checkUserAuth } = useAuth();
   const { fetcher } = useFetcher();
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,6 +30,7 @@ const Login = () => {
     });
 
     if (response.success) {
+      await checkUserAuth();
       const origin = location.state?.from?.pathname || '/';
       navigate(origin);
     } else {
