@@ -4,9 +4,15 @@ import User from "../models/User.js";
 import Incident from "../models/Incident.js";
 
 const { MONGO_URI } = process.env;
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || "DemoPass123!";
 
 if (!MONGO_URI) {
   console.error("Missing required environment variable: MONGO_URI");
+  process.exit(1);
+}
+
+if (process.env.NODE_ENV === "production") {
+  console.error("Sample data seeding is disabled in production.");
   process.exit(1);
 }
 
@@ -42,7 +48,7 @@ const users = [
     name: "Alicia Admin",
     username: "alicia.admin",
     email: "admin@northwind.io",
-    password: "DemoPass123!",
+    password: DEMO_PASSWORD,
     companyDomain: "northwind.io",
     role: "admin",
     isAdmin: true,
@@ -51,7 +57,7 @@ const users = [
     name: "Maya Patel",
     username: "maya.patel",
     email: "maya@northwind.io",
-    password: "DemoPass123!",
+    password: DEMO_PASSWORD,
     companyDomain: "northwind.io",
     role: "user",
     isAdmin: false,
@@ -60,7 +66,7 @@ const users = [
     name: "Jordan Lee",
     username: "jordan.lee",
     email: "jordan@northwind.io",
-    password: "DemoPass123!",
+    password: DEMO_PASSWORD,
     companyDomain: "northwind.io",
     role: "user",
     isAdmin: false,
@@ -69,7 +75,7 @@ const users = [
     name: "Priya Nair",
     username: "priya.nair",
     email: "priya@apexcommerce.com",
-    password: "DemoPass123!",
+    password: DEMO_PASSWORD,
     companyDomain: "apexcommerce.com",
     role: "user",
     isAdmin: false,
@@ -78,7 +84,7 @@ const users = [
     name: "Sam Torres",
     username: "sam.torres",
     email: "sam@apexcommerce.com",
-    password: "DemoPass123!",
+    password: DEMO_PASSWORD,
     companyDomain: "apexcommerce.com",
     role: "user",
     isAdmin: false,
@@ -87,7 +93,7 @@ const users = [
     name: "Alex Chen",
     username: "alex.chen",
     email: "alex@vertexhealth.org",
-    password: "DemoPass123!",
+    password: DEMO_PASSWORD,
     companyDomain: "vertexhealth.org",
     role: "user",
     isAdmin: false,
@@ -344,6 +350,11 @@ const incidentDefinitions = [
   },
 ];
 
+const INCIDENT_CODES = incidentDefinitions.map((incident) => incident.incidentCode);
+const INCIDENT_DEFINITIONS_BY_CODE = new Map(
+  incidentDefinitions.map((incident) => [incident.incidentCode, incident]),
+);
+
 const upsertCompanies = async () => {
   const companyByDomain = new Map();
 
@@ -447,16 +458,14 @@ const seedIncidents = async (userByEmail) => {
   await Incident.deleteMany({
     $or: [
       { tags: { $in: ["sample-data"] } },
-      { incidentCode: { $in: incidentDefinitions.map((incident) => incident.incidentCode) } },
+      { incidentCode: { $in: INCIDENT_CODES } },
     ],
   });
 
   const incidents = buildIncidents(userByEmail);
 
   for (const incident of incidents) {
-    const sourceIncident = incidentDefinitions.find(
-      (definition) => definition.incidentCode === incident.incidentCode,
-    );
+    const sourceIncident = INCIDENT_DEFINITIONS_BY_CODE.get(incident.incidentCode);
 
     if (!incident.reportedBy) {
       throw new Error(`Missing reportedBy user for ${incident.incidentCode}`);
@@ -484,7 +493,11 @@ const printSummary = () => {
     console.log(`- ${company.name} (${company.domain})`);
   });
 
-  console.log("\nSample login accounts (password: DemoPass123!):");
+  if (process.env.DEMO_PASSWORD) {
+    console.log(`\nSample login accounts (password: ${process.env.DEMO_PASSWORD}):`);
+  } else {
+    console.log("\nSample login accounts (password: DemoPass123!):");
+  }
   users.forEach((user) => {
     console.log(`- ${user.email} (${user.name})`);
   });
