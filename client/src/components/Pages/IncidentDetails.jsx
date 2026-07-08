@@ -160,6 +160,24 @@ const IncidentDetails = () => {
               {incident.reportedBy?.name || 'Unknown'}
             </p>
           </div>
+          {incident.customer && (
+            <div>
+              <p className="metric-label">Customer</p>
+              <p className="metric-value">{incident.customer}</p>
+            </div>
+          )}
+          {incident.environment && (
+            <div>
+              <p className="metric-label">Environment</p>
+              <p className="metric-value">{incident.environment}</p>
+            </div>
+          )}
+          {incident.tags?.length > 0 && (
+            <div>
+              <p className="metric-label">Tags</p>
+              <p className="metric-value">{incident.tags.join(', ')}</p>
+            </div>
+          )}
         </div>
       </section>
 
