@@ -166,10 +166,12 @@ const IncidentDetails = () => {
               <p className="metric-value">{incident.customer}</p>
             </div>
           )}
-          <div>
-            <p className="metric-label">Environment</p>
-            <p className="metric-value">{incident.environment}</p>
-          </div>
+          {incident.environment && (
+            <div>
+              <p className="metric-label">Environment</p>
+              <p className="metric-value">{incident.environment}</p>
+            </div>
+          )}
           {incident.tags?.length > 0 && (
             <div>
               <p className="metric-label">Tags</p>
