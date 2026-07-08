@@ -22,7 +22,13 @@ export const NavbarLogo = (props) => (
         <stop offset="100%" stopColor="#6EE7B7" />
       </linearGradient>
       <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-        <feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#000000" floodOpacity="0.5" />
+        <feDropShadow
+          dx="0"
+          dy="5"
+          stdDeviation="5"
+          floodColor="#000000"
+          floodOpacity="0.5"
+        />
       </filter>
     </defs>
 
@@ -34,7 +40,16 @@ export const NavbarLogo = (props) => (
             fill="url(#ticketTeal)"
             opacity="0.85"
           />
-          <line x1="20" y1="60" x2="140" y2="60" stroke="#0F172A" strokeWidth="4" strokeDasharray="8, 8" opacity="0.5" />
+          <line
+            x1="20"
+            y1="60"
+            x2="140"
+            y2="60"
+            stroke="#0F172A"
+            strokeWidth="4"
+            strokeDasharray="8, 8"
+            opacity="0.5"
+          />
         </g>
 
         <g transform="rotate(10) translate(60, 40)">
@@ -42,12 +57,31 @@ export const NavbarLogo = (props) => (
             d="M 20 0 L 140 0 C 151 0 160 9 160 20 L 160 50 C 143 50 143 70 160 70 L 160 180 C 160 191 151 200 140 200 L 20 200 C 9 200 0 191 0 180 L 0 70 C 17 70 17 50 0 50 L 0 20 C 0 9 9 0 20 0 Z"
             fill="url(#ticketMint)"
           />
-          <line x1="20" y1="60" x2="140" y2="60" stroke="#0F172A" strokeWidth="4" strokeDasharray="8, 8" opacity="0.5" />
-          <path d="M 80 80 L 110 120 L 90 120 L 90 170 L 70 170 L 70 120 L 50 120 Z" fill="#0F172A" opacity="0.9" />
+          <line
+            x1="20"
+            y1="60"
+            x2="140"
+            y2="60"
+            stroke="#0F172A"
+            strokeWidth="4"
+            strokeDasharray="8, 8"
+            opacity="0.5"
+          />
+          <path
+            d="M 80 80 L 110 120 L 90 120 L 90 170 L 70 170 L 70 120 L 50 120 Z"
+            fill="#0F172A"
+            opacity="0.9"
+          />
         </g>
       </g>
 
-      <g stroke="url(#arrowGrad)" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.8">
+      <g
+        stroke="url(#arrowGrad)"
+        strokeWidth="6"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.8"
+      >
         <path d="M 220 350 Q 250 250 220 150" />
         <path d="M 580 380 Q 550 280 580 180" />
         <path d="M 180 250 Q 200 180 170 100" strokeWidth="4" opacity="0.5" />

@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Point dotenv to the .env file one level up in the server folder
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 import mongoose from "mongoose";
 import Company from "../models/Company.js";
@@ -148,7 +148,8 @@ const incidentDefinitions = [
     timeline: [
       {
         type: "created",
-        message: "Incident created after latency alerts breached the p95 threshold.",
+        message:
+          "Incident created after latency alerts breached the p95 threshold.",
         createdByEmail: "maya@northwind.io",
         createdAt: hoursAgo(6),
       },
@@ -189,7 +190,8 @@ const incidentDefinitions = [
     timeline: [
       {
         type: "created",
-        message: "Incident created after multiple SSO login failures were reported by customer success.",
+        message:
+          "Incident created after multiple SSO login failures were reported by customer success.",
         createdByEmail: "priya@apexcommerce.com",
         createdAt: hoursAgo(12),
       },
@@ -230,7 +232,8 @@ const incidentDefinitions = [
     timeline: [
       {
         type: "created",
-        message: "Incident created after partner callbacks exceeded the delivery SLO.",
+        message:
+          "Incident created after partner callbacks exceeded the delivery SLO.",
         createdByEmail: "sam@apexcommerce.com",
         createdAt: hoursAgo(30),
       },
@@ -279,7 +282,8 @@ const incidentDefinitions = [
     timeline: [
       {
         type: "created",
-        message: "Incident created after QA noticed missing rows in export validation.",
+        message:
+          "Incident created after QA noticed missing rows in export validation.",
         createdByEmail: "alex@vertexhealth.org",
         createdAt: hoursAgo(48),
       },
@@ -328,7 +332,8 @@ const incidentDefinitions = [
     timeline: [
       {
         type: "created",
-        message: "Incident created after on-call saw sustained APNS delivery failures.",
+        message:
+          "Incident created after on-call saw sustained APNS delivery failures.",
         createdByEmail: "alex@vertexhealth.org",
         createdAt: hoursAgo(72),
       },
@@ -369,7 +374,9 @@ const incidentDefinitions = [
   },
 ];
 
-const INCIDENT_CODES = incidentDefinitions.map((incident) => incident.incidentCode);
+const INCIDENT_CODES = incidentDefinitions.map(
+  (incident) => incident.incidentCode,
+);
 const INCIDENT_DEFINITIONS_BY_CODE = new Map(
   incidentDefinitions.map((incident) => [incident.incidentCode, incident]),
 );
@@ -472,7 +479,9 @@ const seedIncidents = async (userByEmail) => {
   const incidents = buildIncidents(userByEmail);
 
   for (const incident of incidents) {
-    const sourceIncident = INCIDENT_DEFINITIONS_BY_CODE.get(incident.incidentCode);
+    const sourceIncident = INCIDENT_DEFINITIONS_BY_CODE.get(
+      incident.incidentCode,
+    );
 
     if (!incident.reportedBy) {
       throw new Error(`Missing reportedBy user for ${incident.incidentCode}`);

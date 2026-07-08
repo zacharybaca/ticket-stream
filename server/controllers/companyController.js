@@ -67,7 +67,9 @@ const updateCompany = asyncHandler(async (req, res) => {
   }
 
   if (req.body.domain && req.body.domain.toLowerCase() !== company.domain) {
-    const conflict = await Company.findOne({ domain: req.body.domain.toLowerCase() });
+    const conflict = await Company.findOne({
+      domain: req.body.domain.toLowerCase(),
+    });
     if (conflict) {
       res.status(400);
       throw new Error("A company with that domain already exists");
@@ -75,7 +77,9 @@ const updateCompany = asyncHandler(async (req, res) => {
   }
 
   company.name = req.body.name || company.name;
-  company.domain = req.body.domain ? req.body.domain.toLowerCase() : company.domain;
+  company.domain = req.body.domain
+    ? req.body.domain.toLowerCase()
+    : company.domain;
   company.description = req.body.description ?? company.description;
   company.industry = req.body.industry ?? company.industry;
   company.website = req.body.website ?? company.website;
