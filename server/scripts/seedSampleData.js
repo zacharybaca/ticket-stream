@@ -415,11 +415,6 @@ const upsertUsers = async (companyByDomain) => {
       user.isAdmin = userData.isAdmin;
       user.isVerified = true;
       user.company = company._id;
-
-      const passwordMatches = await user.matchPassword(userData.password);
-      if (!passwordMatches) {
-        user.password = userData.password;
-      }
     }
 
     await user.save();
@@ -461,12 +456,7 @@ const buildIncidents = (userByEmail) =>
   }));
 
 const seedIncidents = async (userByEmail) => {
-  await Incident.deleteMany({
-    $or: [
-      { tags: { $in: ["sample-data"] } },
-      { incidentCode: { $in: INCIDENT_CODES } },
-    ],
-  });
+  await Incident.deleteMany({ incidentCode: { $in: INCIDENT_CODES } });
 
   const incidents = buildIncidents(userByEmail);
 
@@ -499,12 +489,13 @@ const printSummary = () => {
     console.log(`- ${company.name} (${company.domain})`);
   });
 
+  console.log("\nSample login accounts:");
   if (process.env.DEMO_PASSWORD) {
     console.log(
-      "\nSample login accounts use the DEMO_PASSWORD environment value.",
+      "Use the DEMO_PASSWORD environment value when signing in to seeded accounts.",
     );
   } else {
-    console.log("\nSample login accounts (password: DemoPass123!):");
+    console.log("Use the default demo password documented in the README.");
   }
   users.forEach((user) => {
     console.log(`- ${user.email} (${user.name})`);
