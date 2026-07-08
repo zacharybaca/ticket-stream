@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema(
     verificationExpire: Date,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
   },
   { timestamps: true },
 );

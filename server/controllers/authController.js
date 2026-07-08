@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Company from "../models/Company.js";
 import generateToken from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
 import asyncHandler from "express-async-handler";
@@ -15,7 +16,17 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("User already exists");
   }
 
-  const user = await User.create({ name, username, email, password });
+  const emailDomain = email.split("@")[1]?.toLowerCase();
+  const company = await Company.findOne({ domain: emailDomain });
+
+  if (!company) {
+    res.status(400);
+    throw new Error(
+      "No company is registered for your email domain. Please contact your administrator.",
+    );
+  }
+
+  const user = await User.create({ name, username, email, password, company: company._id });
 
   if (user) {
     generateToken(res, user._id);
@@ -24,6 +35,7 @@ const registerUser = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
       name: user.name,
+      company: company._id,
     });
   } else {
     res.status(400);

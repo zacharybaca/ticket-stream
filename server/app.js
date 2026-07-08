@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import incidentRoutes from "./routes/incidentRoutes.js";
+import companyRoutes from "./routes/companyRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -60,6 +61,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/incidents", incidentRoutes);
+app.use("/api/companies", companyRoutes);
 
 // Error handling
 app.use(errorHandler);
