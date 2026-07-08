@@ -133,7 +133,7 @@ const incidentDefinitions = [
     environment: "production",
     tags: ["payments", "latency", "sample-data"],
     reportedByEmail: "maya@northwind.io",
-    assigneeEmail: "alex@vertexhealth.org",
+    assigneeEmail: "jordan@northwind.io",
     timeline: [
       {
         type: "created",
@@ -145,7 +145,7 @@ const incidentDefinitions = [
         type: "assignment",
         message: "Incident assignee updated",
         from: "",
-        toEmail: "alex@vertexhealth.org",
+        toEmail: "jordan@northwind.io",
         createdByEmail: "admin@northwind.io",
         createdAt: hoursAgo(5.5),
       },
@@ -153,7 +153,7 @@ const incidentDefinitions = [
         type: "comment",
         message:
           "Engineering confirmed elevated database connection wait times in the payments cluster.",
-        createdByEmail: "alex@vertexhealth.org",
+        createdByEmail: "jordan@northwind.io",
         createdAt: hoursAgo(5),
       },
     ],
@@ -174,7 +174,7 @@ const incidentDefinitions = [
     environment: "production",
     tags: ["sso", "auth", "sample-data"],
     reportedByEmail: "priya@apexcommerce.com",
-    assigneeEmail: "jordan@northwind.io",
+    assigneeEmail: "sam@apexcommerce.com",
     timeline: [
       {
         type: "created",
@@ -187,14 +187,14 @@ const incidentDefinitions = [
         message: "Status changed from open to investigating",
         from: "open",
         to: "investigating",
-        createdByEmail: "jordan@northwind.io",
+        createdByEmail: "sam@apexcommerce.com",
         createdAt: hoursAgo(11.5),
       },
       {
         type: "comment",
         message:
           "Suspected root cause is an outdated certificate bundle in one of the auth gateway pods.",
-        createdByEmail: "jordan@northwind.io",
+        createdByEmail: "sam@apexcommerce.com",
         createdAt: hoursAgo(11),
       },
     ],
@@ -264,7 +264,7 @@ const incidentDefinitions = [
     environment: "staging",
     tags: ["analytics", "exports", "sample-data"],
     reportedByEmail: "alex@vertexhealth.org",
-    assigneeEmail: "maya@northwind.io",
+    assigneeEmail: "alex@vertexhealth.org",
     timeline: [
       {
         type: "created",
@@ -276,8 +276,8 @@ const incidentDefinitions = [
         type: "assignment",
         message: "Incident assignee updated",
         from: "",
-        toEmail: "maya@northwind.io",
-        createdByEmail: "admin@northwind.io",
+        toEmail: "alex@vertexhealth.org",
+        createdByEmail: "alex@vertexhealth.org",
         createdAt: hoursAgo(47.5),
       },
       {
@@ -285,14 +285,14 @@ const incidentDefinitions = [
         message: "Status changed from investigating to resolved",
         from: "investigating",
         to: "resolved",
-        createdByEmail: "maya@northwind.io",
+        createdByEmail: "alex@vertexhealth.org",
         createdAt: hoursAgo(44),
       },
       {
         type: "comment",
         message:
           "Fix deployed to staging and export validation now passes with full datasets.",
-        createdByEmail: "maya@northwind.io",
+        createdByEmail: "alex@vertexhealth.org",
         createdAt: hoursAgo(43.5),
       },
     ],
@@ -368,7 +368,6 @@ const upsertCompanies = async () => {
       company.description = companyData.description;
       company.industry = companyData.industry;
       company.website = companyData.website;
-      company.domain = companyData.domain;
     }
 
     await company.save();
@@ -404,7 +403,6 @@ const upsertUsers = async (companyByDomain) => {
     } else {
       user.name = userData.name;
       user.username = userData.username;
-      user.email = userData.email;
       user.role = userData.role;
       user.isAdmin = userData.isAdmin;
       user.isVerified = true;
@@ -494,7 +492,9 @@ const printSummary = () => {
   });
 
   if (process.env.DEMO_PASSWORD) {
-    console.log(`\nSample login accounts (password: ${process.env.DEMO_PASSWORD}):`);
+    console.log(
+      "\nSample login accounts use the DEMO_PASSWORD environment value.",
+    );
   } else {
     console.log("\nSample login accounts (password: DemoPass123!):");
   }
