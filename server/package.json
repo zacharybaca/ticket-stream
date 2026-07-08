@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node -r dotenv/config server.js",
     "dev": "nodemon -r dotenv/config server.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seed:sample": "node -r dotenv/config scripts/seedSampleData.js"
   },
   "keywords": [
     "mern",
