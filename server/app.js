@@ -53,13 +53,17 @@ const csrfProtection = (req, res, next) => {
   const csrfHeader = req.get("x-csrf-token");
   const csrfCookie = req.cookies.csrfToken;
 
-  if (
-    requestOrigin &&
-    trustedOrigins.has(requestOrigin) &&
-    csrfHeader &&
-    csrfCookie &&
-    csrfHeader === csrfCookie
-  ) {
+  // If a legacy/stale auth cookie exists without a CSRF token cookie, clear it to avoid locking users out.
+  if (!csrfCookie) {
+    res.cookie("jwt", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    res.status(403);
+    return res.json({ message: "Forbidden: missing CSRF token; please sign in again" });
+  }
+
+  if (requestOrigin && trustedOrigins.has(requestOrigin) && csrfHeader && csrfHeader === csrfCookie) {
     return next();
   }
 
