@@ -4,6 +4,20 @@ import { FetcherContext } from './FetcherContext.jsx';
 export const FetcherProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const getCookieValue = (name) => {
+    // Guard tests and any non-browser execution paths where cookies are unavailable.
+    if (typeof document === 'undefined') {
+      return '';
+    }
+
+    const cookie = document.cookie
+      .split(';')
+      .map((entry) => entry.trim())
+      .find((entry) => entry.startsWith(`${name}=`));
+
+    return cookie ? decodeURIComponent(cookie.substring(name.length + 1)) : '';
+  };
+
   // Dynamic backend URL routing based on environment
   const backendUrl = import.meta.env.PROD
     ? import.meta.env.VITE_BACKEND_URL || '' // Production: Use env var, or fallback to relative path
@@ -24,6 +38,15 @@ export const FetcherProvider = ({ children }) => {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers || {}),
     };
+
+    const method = (options.method || 'GET').toUpperCase();
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+      const csrfToken = getCookieValue('csrfToken');
+
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+    }
 
     // 3. Config (Ensuring credentials are sent for JWT cookies)
     const config = {

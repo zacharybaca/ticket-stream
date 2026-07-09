@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import User from "../models/User.js";
+import { setCsrfTokenCookie } from "../utils/csrfToken.js";
 
 const protect = asyncHandler(async (req, res, next) => {
   let token = req.cookies.jwt;
@@ -11,7 +12,13 @@ const protect = asyncHandler(async (req, res, next) => {
       // Ensure the payload key matches your generateToken utility (usually userId)
       req.user = await User.findById(decoded.userId).select("-password");
 
-      if (req.user) return next();
+      if (req.user) {
+        if (!req.cookies.csrfToken) {
+          setCsrfTokenCookie(res);
+        }
+
+        return next();
+      }
     } catch (error) {
       if (req.originalUrl !== "/api/users/me") {
         res.status(401);
@@ -28,14 +35,20 @@ const protect = asyncHandler(async (req, res, next) => {
   throw new Error("Not authorized, no token");
 });
 
-// For strictly Admin-only routes
-const admin = (req, res, next) => {
-  if (req.user && (req.user.isAdmin || req.user.role === "admin")) {
-    next();
-  } else {
+const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+    const userRole = req.user?.isAdmin ? "admin" : req.user?.role;
+
+    if (userRole && allowedRoles.includes(userRole)) {
+      return next();
+    }
+
     res.status(403);
-    throw new Error("Not authorized as an admin");
-  }
+    throw new Error("Not authorized for this resource");
+  };
 };
 
-export { protect, admin };
+// For strictly Admin-only routes
+const admin = authorize("admin");
+
+export { protect, authorize, admin };

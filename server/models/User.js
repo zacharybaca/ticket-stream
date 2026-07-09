@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
+const USER_ROLES = ["admin", "responder", "observer"];
+
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -16,8 +18,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: USER_ROLES,
+      default: "responder",
     },
     avatar: { type: String },
     avatarPublicId: { type: String, default: "" },
@@ -83,3 +85,4 @@ userSchema.methods.getVerificationToken = function () {
 const User = mongoose.model("User", userSchema);
 
 export default User;
+export { USER_ROLES };

@@ -10,7 +10,7 @@ vi.mock("../models/User.js", () => ({
 
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { protect, admin } from "../middleware/authMiddleware.js";
+import { protect, admin, authorize } from "../middleware/authMiddleware.js";
 
 // Helper: run asyncHandler-wrapped middleware and collect the next() argument
 const runMiddleware = (fn, req, res) =>
@@ -24,20 +24,25 @@ describe("protect middleware", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     req = { cookies: {}, originalUrl: "/api/test" };
-    res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
+    res = {
+      cookie: vi.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
   });
 
   it("attaches user and calls next() with a valid token", async () => {
     req.cookies.jwt = "valid-token";
     jwt.verify.mockReturnValue({ userId: "user123" });
     User.findById.mockReturnValue({
-      select: vi.fn().mockResolvedValue({ _id: "user123", role: "user" }),
+      select: vi.fn().mockResolvedValue({ _id: "user123", role: "responder" }),
     });
 
     const err = await runMiddleware(protect, req, res);
 
     expect(err).toBeUndefined();
-    expect(req.user).toEqual({ _id: "user123", role: "user" });
+    expect(req.user).toEqual({ _id: "user123", role: "responder" });
+    expect(res.cookie).toHaveBeenCalled();
   });
 
   it("calls next(Error) when no token is present", async () => {
@@ -64,7 +69,7 @@ describe("protect middleware", () => {
 
 describe("admin middleware", () => {
   it("calls next() when user is an admin via isAdmin flag", () => {
-    const req = { user: { isAdmin: true, role: "user" } };
+    const req = { user: { isAdmin: true, role: "responder" } };
     const res = { status: vi.fn().mockReturnThis() };
     const next = vi.fn();
 
@@ -84,11 +89,46 @@ describe("admin middleware", () => {
   });
 
   it("throws when user is not an admin", () => {
-    const req = { user: { isAdmin: false, role: "user" } };
+    const req = { user: { isAdmin: false, role: "observer" } };
     const res = { status: vi.fn().mockReturnThis() };
     const next = vi.fn();
 
-    expect(() => admin(req, res, next)).toThrow("Not authorized as an admin");
+    expect(() => admin(req, res, next)).toThrow(
+      "Not authorized for this resource",
+    );
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+});
+
+describe("authorize middleware", () => {
+  it("allows users with an allowed role", () => {
+    const req = { user: { isAdmin: false, role: "observer" } };
+    const res = { status: vi.fn().mockReturnThis() };
+    const next = vi.fn();
+
+    authorize("admin", "observer")(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it("treats isAdmin users as admin regardless of role field", () => {
+    const req = { user: { isAdmin: true, role: "observer" } };
+    const res = { status: vi.fn().mockReturnThis() };
+    const next = vi.fn();
+
+    authorize("admin")(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it("throws when user role is not allowed", () => {
+    const req = { user: { isAdmin: false, role: "observer" } };
+    const res = { status: vi.fn().mockReturnThis() };
+    const next = vi.fn();
+
+    expect(() => authorize("admin", "responder")(req, res, next)).toThrow(
+      "Not authorized for this resource",
+    );
     expect(res.status).toHaveBeenCalledWith(403);
   });
 });
