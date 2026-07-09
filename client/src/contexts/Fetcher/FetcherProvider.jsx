@@ -11,10 +11,11 @@ export const FetcherProvider = ({ children }) => {
     }
 
     const cookie = document.cookie
-      .split('; ')
+      .split(';')
+      .map((entry) => entry.trim())
       .find((entry) => entry.startsWith(`${name}=`));
 
-    return cookie ? cookie.split('=').slice(1).join('=') : '';
+    return cookie ? decodeURIComponent(cookie.substring(name.length + 1)) : '';
   };
 
   // Dynamic backend URL routing based on environment
