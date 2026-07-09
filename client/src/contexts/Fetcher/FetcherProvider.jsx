@@ -70,6 +70,7 @@ export const FetcherProvider = ({ children }) => {
       }
 
       // 2. Handle Unauthorized (401)
+      // Parse the body once; we return immediately, so it will never be read again.
       if (response.status === 401) {
         const data = await response.json().catch(() => null);
         return {
