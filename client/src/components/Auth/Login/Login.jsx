@@ -24,17 +24,22 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetcher('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetcher('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (response.success) {
-      await checkUserAuth();
-      const origin = location.state?.from?.pathname || '/';
-      navigate(origin);
-    } else {
-      toast.error(response.error || 'Login failed. Check your credentials.');
+      if (response.success) {
+        await checkUserAuth();
+        const origin = location.state?.from?.pathname || '/';
+        navigate(origin);
+      } else {
+        toast.error(response.error || 'Login failed. Check your credentials.');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('An unexpected error occurred. Please try again.');
     }
   };
 

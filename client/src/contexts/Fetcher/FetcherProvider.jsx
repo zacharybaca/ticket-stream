@@ -1,29 +1,30 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { FetcherContext } from './FetcherContext.jsx';
+
+// Pure utility — defined once at module level to avoid recreation on every render.
+const getCookieValue = (name) => {
+  // Guard tests and any non-browser execution paths where cookies are unavailable.
+  if (typeof document === 'undefined') {
+    return '';
+  }
+
+  const cookie = document.cookie
+    .split(';')
+    .map((entry) => entry.trim())
+    .find((entry) => entry.startsWith(`${name}=`));
+
+  return cookie ? decodeURIComponent(cookie.substring(name.length + 1)) : '';
+};
+
+// Use VITE_BACKEND_URL when set (e.g., cross-origin production deployment).
+// Otherwise fall back to a relative URL so the Vite dev-proxy handles routing
+// and avoids CORS entirely in development.
+const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
 
 export const FetcherProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const getCookieValue = (name) => {
-    // Guard tests and any non-browser execution paths where cookies are unavailable.
-    if (typeof document === 'undefined') {
-      return '';
-    }
-
-    const cookie = document.cookie
-      .split(';')
-      .map((entry) => entry.trim())
-      .find((entry) => entry.startsWith(`${name}=`));
-
-    return cookie ? decodeURIComponent(cookie.substring(name.length + 1)) : '';
-  };
-
-  // Dynamic backend URL routing based on environment
-  const backendUrl = import.meta.env.PROD
-    ? import.meta.env.VITE_BACKEND_URL || '' // Production: Use env var, or fallback to relative path
-    : import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'; // Local: Use env var, or fallback to localhost
-
-  const fetcher = async (
+  const fetcher = useCallback(async (
     url,
     options = {},
     fallbackError = 'An error occurred.'
@@ -103,10 +104,15 @@ export const FetcherProvider = ({ children }) => {
     } finally {
       setIsLoaded(true);
     }
-  };
+  }, [setIsLoaded]);
+
+  const contextValue = useMemo(
+    () => ({ fetcher, isLoaded, setIsLoaded }),
+    [fetcher, isLoaded]
+  );
 
   return (
-    <FetcherContext.Provider value={{ fetcher, isLoaded, setIsLoaded }}>
+    <FetcherContext.Provider value={contextValue}>
       {children}
     </FetcherContext.Provider>
   );
