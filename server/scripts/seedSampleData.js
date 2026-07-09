@@ -70,7 +70,7 @@ const users = [
     email: "maya@northwind.io",
     password: DEMO_PASSWORD,
     companyDomain: "northwind.io",
-    role: "user",
+    role: "responder",
     isAdmin: false,
   },
   {
@@ -79,7 +79,7 @@ const users = [
     email: "jordan@northwind.io",
     password: DEMO_PASSWORD,
     companyDomain: "northwind.io",
-    role: "user",
+    role: "observer",
     isAdmin: false,
   },
   {
@@ -88,7 +88,7 @@ const users = [
     email: "priya@apexcommerce.com",
     password: DEMO_PASSWORD,
     companyDomain: "apexcommerce.com",
-    role: "user",
+    role: "responder",
     isAdmin: false,
   },
   {
@@ -97,7 +97,7 @@ const users = [
     email: "sam@apexcommerce.com",
     password: DEMO_PASSWORD,
     companyDomain: "apexcommerce.com",
-    role: "user",
+    role: "responder",
     isAdmin: false,
   },
   {
@@ -106,7 +106,7 @@ const users = [
     email: "alex@vertexhealth.org",
     password: DEMO_PASSWORD,
     companyDomain: "vertexhealth.org",
-    role: "user",
+    role: "observer",
     isAdmin: false,
   },
 ];

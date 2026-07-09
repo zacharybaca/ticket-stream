@@ -31,13 +31,13 @@ describe("protect middleware", () => {
     req.cookies.jwt = "valid-token";
     jwt.verify.mockReturnValue({ userId: "user123" });
     User.findById.mockReturnValue({
-      select: vi.fn().mockResolvedValue({ _id: "user123", role: "user" }),
+      select: vi.fn().mockResolvedValue({ _id: "user123", role: "responder" }),
     });
 
     const err = await runMiddleware(protect, req, res);
 
     expect(err).toBeUndefined();
-    expect(req.user).toEqual({ _id: "user123", role: "user" });
+    expect(req.user).toEqual({ _id: "user123", role: "responder" });
   });
 
   it("calls next(Error) when no token is present", async () => {
@@ -64,7 +64,7 @@ describe("protect middleware", () => {
 
 describe("admin middleware", () => {
   it("calls next() when user is an admin via isAdmin flag", () => {
-    const req = { user: { isAdmin: true, role: "user" } };
+    const req = { user: { isAdmin: true, role: "responder" } };
     const res = { status: vi.fn().mockReturnThis() };
     const next = vi.fn();
 
@@ -84,7 +84,7 @@ describe("admin middleware", () => {
   });
 
   it("throws when user is not an admin", () => {
-    const req = { user: { isAdmin: false, role: "user" } };
+    const req = { user: { isAdmin: false, role: "observer" } };
     const res = { status: vi.fn().mockReturnThis() };
     const next = vi.fn();
 
