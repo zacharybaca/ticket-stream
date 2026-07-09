@@ -5,10 +5,10 @@
 }
 
 .home-logo {
-  width: 75%;
+  max-width: 450px; /* Prevents the horizontal logo from stretching too wide */
+  width: 100%;
   height: auto;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .hero-section {

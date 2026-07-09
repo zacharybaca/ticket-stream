@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
-import logo from '../../assets/ticket_stream_app_logo.png';
+// Swap the PNG import for your new component
+import NavbarLogo from '../Layout/Logo/NavbarLogo.jsx';
 import './home.css';
 
 const Home = () => {
@@ -10,7 +11,8 @@ const Home = () => {
     <div className="home-page">
       <section className="hero-section">
         <div className="container">
-          <img src={logo} alt="Ticket Stream Logo" className="home-logo" />
+          {/* Use the component and pass the className down */}
+          <NavbarLogo className="home-logo" />
           <p className="home-lead">
             Incident management workspace for software teams handling enterprise
             client outages, service degradation, and high-priority tickets.
@@ -39,6 +41,7 @@ const Home = () => {
         </div>
       </section>
 
+      {/* ... feature grid remains the same ... */}
       <section className="feature-grid">
         <article className="feature-card">
           <h3>Incident triage board</h3>
