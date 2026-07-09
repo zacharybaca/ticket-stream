@@ -6,11 +6,11 @@ import {
   updateCompany,
   deleteCompany,
 } from "../controllers/companyController.js";
-import { protect, admin } from "../middleware/authMiddleware.js";
+import { protect, authorize } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.use(protect, admin);
+router.use(protect, authorize("admin"));
 
 router.route("/").get(getCompanies).post(createCompany);
 router
