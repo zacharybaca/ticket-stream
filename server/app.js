@@ -60,15 +60,24 @@ const csrfProtection = (req, res, next) => {
       expires: new Date(0),
     });
     res.status(403);
-    return res.json({ message: "Forbidden: missing CSRF token; please sign in again" });
+    return res.json({
+      message: "Forbidden: missing CSRF token; please sign in again",
+    });
   }
 
-  if (requestOrigin && trustedOrigins.has(requestOrigin) && csrfHeader && csrfHeader === csrfCookie) {
+  if (
+    requestOrigin &&
+    trustedOrigins.has(requestOrigin) &&
+    csrfHeader &&
+    csrfHeader === csrfCookie
+  ) {
     return next();
   }
 
   res.status(403);
-  return res.json({ message: "Forbidden: invalid CSRF token or request origin" });
+  return res.json({
+    message: "Forbidden: invalid CSRF token or request origin",
+  });
 };
 
 // Security headers

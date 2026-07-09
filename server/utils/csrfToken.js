@@ -7,7 +7,10 @@ const csrfCookieOptions = {
   maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
-const setCsrfTokenCookie = (res, csrfToken = crypto.randomBytes(32).toString("hex")) => {
+const setCsrfTokenCookie = (
+  res,
+  csrfToken = crypto.randomBytes(32).toString("hex"),
+) => {
   res.cookie("csrfToken", csrfToken, csrfCookieOptions);
   return csrfToken;
 };
