@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import User from "../models/User.js";
+import { setCsrfTokenCookie } from "../utils/csrfToken.js";
 
 const protect = asyncHandler(async (req, res, next) => {
   let token = req.cookies.jwt;
@@ -11,7 +12,13 @@ const protect = asyncHandler(async (req, res, next) => {
       // Ensure the payload key matches your generateToken utility (usually userId)
       req.user = await User.findById(decoded.userId).select("-password");
 
-      if (req.user) return next();
+      if (req.user) {
+        if (!req.cookies.csrfToken) {
+          setCsrfTokenCookie(res);
+        }
+
+        return next();
+      }
     } catch (error) {
       if (req.originalUrl !== "/api/users/me") {
         res.status(401);

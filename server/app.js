@@ -50,13 +50,21 @@ const csrfProtection = (req, res, next) => {
   }
 
   const requestOrigin = getRequestOrigin(req);
+  const csrfHeader = req.get("x-csrf-token");
+  const csrfCookie = req.cookies.csrfToken;
 
-  if (requestOrigin && trustedOrigins.has(requestOrigin)) {
+  if (
+    requestOrigin &&
+    trustedOrigins.has(requestOrigin) &&
+    csrfHeader &&
+    csrfCookie &&
+    csrfHeader === csrfCookie
+  ) {
     return next();
   }
 
   res.status(403);
-  return res.json({ message: "Forbidden: invalid request origin" });
+  return res.json({ message: "Forbidden: invalid CSRF token or request origin" });
 };
 
 // Security headers

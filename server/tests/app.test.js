@@ -12,11 +12,11 @@ describe("csrf protection", () => {
   it("rejects unsafe cookie-authenticated requests from untrusted origins", async () => {
     const response = await request(app)
       .post("/api/auth/logout")
-      .set("Cookie", ["jwt=test-token"]);
+      .set("Cookie", ["jwt=test-token", "csrfToken=test-csrf-token"]);
 
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
-      message: "Forbidden: invalid request origin",
+      message: "Forbidden: invalid CSRF token or request origin",
     });
   });
 
@@ -24,7 +24,8 @@ describe("csrf protection", () => {
     const response = await request(app)
       .post("/api/auth/logout")
       .set("Origin", "http://localhost:5173")
-      .set("Cookie", ["jwt=test-token"]);
+      .set("X-CSRF-Token", "test-csrf-token")
+      .set("Cookie", ["jwt=test-token", "csrfToken=test-csrf-token"]);
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "User logged out" });

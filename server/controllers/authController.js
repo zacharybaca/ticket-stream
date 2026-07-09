@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import Company from "../models/Company.js";
 import generateToken from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
+import { clearCsrfTokenCookie } from "../utils/csrfToken.js";
 import asyncHandler from "express-async-handler";
 import crypto from "crypto";
 
@@ -89,6 +90,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     expires: new Date(0),
   });
+  clearCsrfTokenCookie(res);
   res.status(200).json({ message: "User logged out" });
 });
 

@@ -24,7 +24,11 @@ describe("protect middleware", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     req = { cookies: {}, originalUrl: "/api/test" };
-    res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
+    res = {
+      cookie: vi.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
   });
 
   it("attaches user and calls next() with a valid token", async () => {
@@ -38,6 +42,7 @@ describe("protect middleware", () => {
 
     expect(err).toBeUndefined();
     expect(req.user).toEqual({ _id: "user123", role: "responder" });
+    expect(res.cookie).toHaveBeenCalled();
   });
 
   it("calls next(Error) when no token is present", async () => {
