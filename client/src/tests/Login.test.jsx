@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Login from '../components/Auth/Login/Login';
 
 const mockFetcher = vi.fn();
@@ -12,6 +13,10 @@ vi.mock('../hooks/useFetcher.js', () => ({
 
 vi.mock('../hooks/useAuth.js', () => ({
   useAuth: () => ({ checkUserAuth: mockCheckUserAuth }),
+}));
+
+vi.mock('react-toastify', () => ({
+  toast: { error: vi.fn(), success: vi.fn() },
 }));
 
 const renderLogin = (initialEntries = ['/login']) =>
@@ -84,5 +89,27 @@ describe('Login', () => {
     await waitFor(() => {
       expect(mockCheckUserAuth).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('shows the server error message when login fails', async () => {
+    mockFetcher.mockResolvedValue({
+      success: false,
+      error: 'Invalid email or password',
+      status: 401,
+    });
+    renderLogin();
+
+    fireEvent.change(document.querySelector('input[type="email"]'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(document.querySelector('input[type="password"]'), {
+      target: { value: 'wrongpassword' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Invalid email or password');
+    });
+    expect(mockCheckUserAuth).not.toHaveBeenCalled();
   });
 });
