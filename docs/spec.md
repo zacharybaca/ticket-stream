@@ -23,7 +23,7 @@
 
 ## API Role Access
 
-| Endpoint | Allowed roles |
+| Endpoint | Access policy |
 | --- | --- |
 | `POST /api/auth/register` | Public |
 | `POST /api/auth/login` | Public |
