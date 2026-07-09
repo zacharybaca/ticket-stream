@@ -13,6 +13,11 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app = express();
 const unsafeMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+// Authentication endpoints must remain reachable without an existing valid
+// session so that users with stale JWT cookies (but no matching CSRF token)
+// are never permanently locked out of logging in or registering.
+const CSRF_EXEMPT_PATHS = new Set(["/api/auth/login", "/api/auth/register"]);
+
 const corsOptions = {
   origin: [
     process.env.CLIENT_URL,
@@ -45,7 +50,7 @@ const getRequestOrigin = (req) => {
 };
 
 const csrfProtection = (req, res, next) => {
-  if (!req.cookies?.jwt || !unsafeMethods.has(req.method)) {
+  if (!req.cookies?.jwt || !unsafeMethods.has(req.method) || CSRF_EXEMPT_PATHS.has(req.path)) {
     return next();
   }
 
