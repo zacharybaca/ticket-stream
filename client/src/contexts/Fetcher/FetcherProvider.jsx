@@ -5,6 +5,7 @@ export const FetcherProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const getCookieValue = (name) => {
+    // Guard tests and any non-browser execution paths where cookies are unavailable.
     if (typeof document === 'undefined') {
       return '';
     }
@@ -13,7 +14,7 @@ export const FetcherProvider = ({ children }) => {
       .split('; ')
       .find((entry) => entry.startsWith(`${name}=`));
 
-    return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : '';
+    return cookie ? cookie.split('=').slice(1).join('=') : '';
   };
 
   // Dynamic backend URL routing based on environment
