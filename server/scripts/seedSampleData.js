@@ -429,6 +429,7 @@ const upsertUsers = async (companyByDomain) => {
     } else {
       user.name = userData.name;
       user.username = userData.username;
+      user.password = userData.password;
       user.role = userData.role;
       user.isAdmin = userData.isAdmin;
       user.isVerified = true;
