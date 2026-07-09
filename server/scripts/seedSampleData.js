@@ -65,6 +65,15 @@ const users = [
     isAdmin: true,
   },
   {
+    name: "Zachary Baca",
+    username: "zachary.baca",
+    email: "zachary@northwind.io",
+    password: "B7ullet8S",
+    companyDomain: "northwind.io",
+    role: "admin",
+    isAdmin: true,
+  },
+  {
     name: "Maya Patel",
     username: "maya.patel",
     email: "maya@northwind.io",
