@@ -277,12 +277,12 @@ const updateCompany = asyncHandler(async (req, res) => {
  *         schema:
  *           type: string
  *         description: Company identifier.
- *       - in: header
- *         name: X-CSRF-Token
- *         schema:
- *           type: string
- *         required: false
- *         description: Required when a valid jwt cookie is present on the request.
+  *       - in: header
+  *         name: X-CSRF-Token
+  *         schema:
+  *           type: string
+  *         required: true
+  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
  *     responses:
  *       200:
  *         description: Company deleted
