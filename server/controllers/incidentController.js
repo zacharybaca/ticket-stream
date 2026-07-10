@@ -588,12 +588,12 @@ const updateIncidentStatus = asyncHandler(async (req, res) => {
  *         schema:
  *           type: string
  *         description: Incident identifier.
- *       - in: header
- *         name: X-CSRF-Token
- *         schema:
- *           type: string
- *         required: false
- *         description: Required when a valid jwt cookie is present on the request.
+  *       - in: header
+  *         name: X-CSRF-Token
+  *         schema:
+  *           type: string
+  *         required: true
+  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
  *     requestBody:
  *       required: true
  *       content:
