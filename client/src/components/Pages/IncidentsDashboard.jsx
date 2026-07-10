@@ -65,7 +65,7 @@ const IncidentsDashboard = () => {
     Object.keys(next).forEach((key) => {
       if (!next[key]) delete next[key];
     });
-    setSearchParams(next);
+    setSearchParams(next, { replace: name === 'search' });
   };
 
   const activeStatusCount =
