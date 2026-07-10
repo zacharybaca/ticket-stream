@@ -35,9 +35,11 @@ describe("csrf protection", () => {
 describe("swagger ui", () => {
   it("serves the API documentation", async () => {
     const response = await request(app).get("/api/docs/");
+    const initScript = await request(app).get("/api/docs/swagger-ui-init.js");
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Swagger UI");
-    expect(response.text).toContain("Ticket Stream API");
+    expect(initScript.status).toBe(200);
+    expect(initScript.text).toContain("Ticket Stream API");
   });
 });
