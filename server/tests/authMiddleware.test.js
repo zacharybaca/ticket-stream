@@ -26,6 +26,7 @@ describe("protect middleware", () => {
     req = { cookies: {}, originalUrl: "/api/test" };
     res = {
       cookie: vi.fn(),
+      set: vi.fn(),
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
     };

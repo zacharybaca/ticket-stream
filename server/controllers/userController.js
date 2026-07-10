@@ -46,12 +46,12 @@ const getUserProfile = asyncHandler(async (req, res) => {
  *     summary: Update the logged-in user's profile
  *     tags: [Users]
  *     parameters:
-  *       - in: header
-  *         name: X-CSRF-Token
-  *         schema:
-  *           type: string
-  *         required: true
-  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
  *     requestBody:
  *       required: true
  *       content:
@@ -73,19 +73,23 @@ const getUserProfile = asyncHandler(async (req, res) => {
  *                 type: string
  *                 format: binary
  *     responses:
-  *             schema:
-  *               allOf:
-  *                 - $ref: '#/components/schemas/UserReference'
-  *                 - type: object
-  *                   properties:
-  *                     avatar:
-  *                       type: string
-  *                       nullable: true
-  *                     role:
-  *                       type: string
-  *                       enum: [admin, responder, observer]
-  *                     isAdmin:
-  *                       type: boolean
+ *       200:
+ *         description: User profile updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/UserReference'
+ *                 - type: object
+ *                   properties:
+ *                     avatar:
+ *                       type: string
+ *                       nullable: true
+ *                     role:
+ *                       type: string
+ *                       enum: [admin, responder, observer]
+ *                     isAdmin:
+ *                       type: boolean
  *       401:
  *         description: Authentication required
  *         content:
@@ -143,12 +147,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
  *     summary: Delete the logged-in user's account
  *     tags: [Users]
  *     parameters:
-  *       - in: header
-  *         name: X-CSRF-Token
-  *         schema:
-  *           type: string
-  *         required: true
-  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
  *     responses:
  *       200:
  *         description: User account deleted
