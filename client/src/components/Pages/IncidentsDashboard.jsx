@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useFetcher } from '../../hooks/useFetcher.js';
 import {
@@ -9,17 +9,15 @@ import {
 import StatusBadge from '../Incidents/StatusBadge.jsx';
 import './incidents.css';
 
-const defaultFilters = {
-  search: '',
-  status: '',
-  priority: '',
-  assignee: '',
-};
-
 const IncidentsDashboard = () => {
   const { fetcher } = useFetcher();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState(defaultFilters);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get('search') ?? '';
+  const status = searchParams.get('status') ?? '';
+  const priority = searchParams.get('priority') ?? '';
+  const assignee = searchParams.get('assignee') ?? '';
   const [incidents, setIncidents] = useState([]);
   const [summary, setSummary] = useState({
     openCount: 0,
@@ -29,42 +27,45 @@ const IncidentsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadData = async () => {
-    setLoading(true);
-    setError('');
-
-    const [incidentsResponse, summaryResponse] = await Promise.all([
-      fetchIncidents(fetcher, filters),
-      fetchIncidentSummary(fetcher),
-    ]);
-
-    if (!incidentsResponse.success) {
-      setError(incidentsResponse.error || 'Failed to load incidents.');
-      setIncidents([]);
-      setLoading(false);
-      return;
-    }
-
-    if (!summaryResponse.success) {
-      setError(summaryResponse.error || 'Failed to load incident summary.');
-      setSummary({ openCount: 0, criticalCount: 0, statusSummary: [] });
-      setLoading(false);
-      return;
-    }
-
-    setIncidents(incidentsResponse.data.incidents || []);
-    setSummary(summaryResponse.data);
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError('');
+
+      const [incidentsResponse, summaryResponse] = await Promise.all([
+        fetchIncidents(fetcher, { search, status, priority, assignee }),
+        fetchIncidentSummary(fetcher),
+      ]);
+
+      if (!incidentsResponse.success) {
+        setError(incidentsResponse.error || 'Failed to load incidents.');
+        setIncidents([]);
+        setLoading(false);
+        return;
+      }
+
+      if (!summaryResponse.success) {
+        setError(summaryResponse.error || 'Failed to load incident summary.');
+        setSummary({ openCount: 0, criticalCount: 0, statusSummary: [] });
+        setLoading(false);
+        return;
+      }
+
+      setIncidents(incidentsResponse.data.incidents || []);
+      setSummary(summaryResponse.data);
+      setLoading(false);
+    };
+
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.search, filters.status, filters.priority, filters.assignee]);
+  }, [search, status, priority, assignee, fetcher]);
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
-    setFilters((previous) => ({ ...previous, [name]: value }));
+    const next = { ...Object.fromEntries(searchParams), [name]: value };
+    Object.keys(next).forEach((key) => {
+      if (!next[key]) delete next[key];
+    });
+    setSearchParams(next);
   };
 
   const activeStatusCount =
@@ -107,13 +108,13 @@ const IncidentsDashboard = () => {
         <input
           type="text"
           name="search"
-          value={filters.search}
+          value={search}
           onChange={handleFilterChange}
           placeholder="Search title, app, service, incident code"
         />
         <select
           name="status"
-          value={filters.status}
+          value={status}
           onChange={handleFilterChange}
         >
           <option value="">All statuses</option>
@@ -125,7 +126,7 @@ const IncidentsDashboard = () => {
         </select>
         <select
           name="priority"
-          value={filters.priority}
+          value={priority}
           onChange={handleFilterChange}
         >
           <option value="">All priorities</option>
@@ -136,7 +137,7 @@ const IncidentsDashboard = () => {
         </select>
         <select
           name="assignee"
-          value={filters.assignee}
+          value={assignee}
           onChange={handleFilterChange}
         >
           <option value="">Any assignee</option>
