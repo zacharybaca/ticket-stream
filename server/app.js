@@ -129,7 +129,11 @@ app.use("/api/auth", authLimiter);
 app.use(cors(corsOptions));
 app.use(cookieParser()); // Must come before routes to parse JWT cookies
 app.use((req, res, next) => {
-  if (req.cookies?.csrfToken) {
+  if (
+    req.path.startsWith("/api") &&
+    req.cookies?.csrfToken &&
+    !res.get(CSRF_HEADER_NAME)
+  ) {
     setCsrfTokenHeader(res, req.cookies.csrfToken);
   }
 

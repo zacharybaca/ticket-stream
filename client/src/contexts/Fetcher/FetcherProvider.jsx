@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { FetcherContext } from './FetcherContext.jsx';
 
 const CSRF_STORAGE_KEY = 'ticket-stream.csrf-token';
+const CSRF_HEADER_NAME = 'X-CSRF-Token';
 
 // Pure utility — defined once at module level to avoid recreation on every render.
 const getCookieValue = (name) => {
@@ -68,7 +69,7 @@ export const FetcherProvider = ({ children }) => {
       const csrfToken = getStoredCsrfToken() || getCookieValue('csrfToken');
 
       if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
+        headers[CSRF_HEADER_NAME] = csrfToken;
       }
     }
 
@@ -81,7 +82,7 @@ export const FetcherProvider = ({ children }) => {
 
     try {
       let response = await fetch(finalUrl, config);
-      const responseCsrfToken = response.headers.get('x-csrf-token');
+      const responseCsrfToken = response.headers.get(CSRF_HEADER_NAME);
 
       if (responseCsrfToken !== null) {
         setStoredCsrfToken(responseCsrfToken);
