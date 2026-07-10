@@ -6,6 +6,49 @@ import { clearCsrfTokenCookie } from "../utils/csrfToken.js";
 import asyncHandler from "express-async-handler";
 import crypto from "crypto";
 
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - username
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthUserResponse'
+ *       400:
+ *         description: Invalid registration request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const registerUser = asyncHandler(async (req, res) => {
   const { name, username, email, password } = req.body;
 
@@ -55,6 +98,32 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/is-admin:
+ *   get:
+ *     summary: Check whether the current user is an admin
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Admin status returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AdminStatusResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const isUserAdmin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -66,6 +135,55 @@ const isUserAdmin = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Sign in with an email or username
+ *     tags: [Auth]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *                 format: password
+ *           examples:
+ *             withEmail:
+ *               summary: Authenticate with an email
+ *               value:
+ *                 email: jane@example.com
+ *                 password: password123
+ *             withUsername:
+ *               summary: Authenticate with a username
+ *               value:
+ *                 username: janedoe
+ *                 password: password123
+ *     responses:
+ *       200:
+ *         description: User authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthUserResponse'
+ *       401:
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
   const user =
@@ -85,6 +203,33 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Sign out the current user
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Required when a valid jwt cookie is present on the request.
+ *     responses:
+ *       200:
+ *         description: User logged out
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
+ *       403:
+ *         description: Invalid CSRF token or request origin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const logoutUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
@@ -94,9 +239,51 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "User logged out" });
 });
 
-// @desc    Forgot password — sends a reset link via email
-// @route   POST /api/auth/forgotpassword
-// @access  Public
+/**
+ * @swagger
+ * /api/auth/forgotpassword:
+ *   post:
+ *     summary: Request a password reset email
+ *     tags: [Auth]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Password reset email queued
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *               required: [success, message]
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Email delivery failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const forgotPassword = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
 
@@ -137,9 +324,52 @@ const forgotPassword = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Reset password
-// @route   PUT /api/auth/resetpassword/:resettoken
-// @access  Public
+/**
+ * @swagger
+ * /api/auth/resetpassword/{resettoken}:
+ *   put:
+ *     summary: Reset a password with a valid reset token
+ *     tags: [Auth]
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: resettoken
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Password reset token delivered by email.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *               required: [success, message]
+ *       400:
+ *         description: Invalid or expired reset token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const resetPassword = asyncHandler(async (req, res) => {
   const resetPasswordToken = crypto
     .createHash("sha256")

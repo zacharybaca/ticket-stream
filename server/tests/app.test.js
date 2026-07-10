@@ -31,3 +31,13 @@ describe("csrf protection", () => {
     expect(response.body).toEqual({ message: "User logged out" });
   });
 });
+
+describe("swagger ui", () => {
+  it("serves the API documentation", async () => {
+    const response = await request(app).get("/api/docs/");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("Swagger UI");
+    expect(response.text).toContain("Ticket Stream API");
+  });
+});

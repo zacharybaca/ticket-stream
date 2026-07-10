@@ -4,11 +4,13 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
+import swaggerUi from "swagger-ui-express";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import incidentRoutes from "./routes/incidentRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import swaggerSpec from "./swagger.js";
 
 const app = express();
 const unsafeMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -127,6 +129,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/incidents", incidentRoutes);
 app.use("/api/companies", companyRoutes);
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Error handling
 app.use(errorHandler);
