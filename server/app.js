@@ -31,6 +31,17 @@ const corsOptions = {
 
 const trustedOrigins = new Set(corsOptions.origin);
 
+const isTrustedOrigin = (req, requestOrigin) => {
+  if (!requestOrigin) {
+    return false;
+  }
+
+  const requestHost = req.get("host");
+  const sameOrigin = requestHost && requestOrigin === `${req.protocol}://${requestHost}`;
+
+  return Boolean(sameOrigin || trustedOrigins.has(requestOrigin));
+};
+
 const getRequestOrigin = (req) => {
   const originHeader = req.get("origin");
 
@@ -72,12 +83,7 @@ const csrfProtection = (req, res, next) => {
     });
   }
 
-  if (
-    requestOrigin &&
-    trustedOrigins.has(requestOrigin) &&
-    csrfHeader &&
-    csrfHeader === csrfCookie
-  ) {
+  if (isTrustedOrigin(req, requestOrigin) && csrfHeader && csrfHeader === csrfCookie) {
     return next();
   }
 

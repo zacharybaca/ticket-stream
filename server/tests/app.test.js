@@ -30,6 +30,18 @@ describe("csrf protection", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "User logged out" });
   });
+
+  it("allows unsafe cookie-authenticated requests from the same origin", async () => {
+    const response = await request(app)
+      .post("/api/auth/logout")
+      .set("Host", "localhost:5000")
+      .set("Origin", "http://localhost:5000")
+      .set("X-CSRF-Token", "test-csrf-token")
+      .set("Cookie", ["jwt=test-token", "csrfToken=test-csrf-token"]);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: "User logged out" });
+  });
 });
 
 describe("swagger ui", () => {
