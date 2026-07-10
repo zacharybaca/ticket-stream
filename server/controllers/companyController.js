@@ -3,9 +3,32 @@ import Company from "../models/Company.js";
 import User from "../models/User.js";
 
 /**
- * @desc    Get all companies
- * @route   GET /api/companies
- * @access  Private/Admin
+ * @swagger
+ * /api/companies:
+ *   get:
+ *     summary: List companies
+ *     tags: [Companies]
+ *     responses:
+ *       200:
+ *         description: Companies returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Company'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const getCompanies = asyncHandler(async (req, res) => {
   const companies = await Company.find({}).sort({ name: 1 });
@@ -13,9 +36,43 @@ const getCompanies = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Get a single company by ID
- * @route   GET /api/companies/:id
- * @access  Private/Admin
+ * @swagger
+ * /api/companies/{id}:
+ *   get:
+ *     summary: Get a company by ID
+ *     tags: [Companies]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Company identifier.
+ *     responses:
+ *       200:
+ *         description: Company returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Company'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Company not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const getCompanyById = asyncHandler(async (req, res) => {
   const company = await Company.findById(req.params.id);
@@ -29,9 +86,64 @@ const getCompanyById = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Create a company
- * @route   POST /api/companies
- * @access  Private/Admin
+ * @swagger
+ * /api/companies:
+ *   post:
+ *     summary: Create a company
+ *     tags: [Companies]
+ *     parameters:
+  *       - in: header
+  *         name: X-CSRF-Token
+  *         schema:
+  *           type: string
+  *         required: true
+  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - domain
+ *             properties:
+ *               name:
+ *                 type: string
+ *               domain:
+ *                 type: string
+ *                 example: example.com
+ *               description:
+ *                 type: string
+ *               industry:
+ *                 type: string
+ *               website:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Company created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Company'
+ *       400:
+ *         description: Invalid company data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const createCompany = asyncHandler(async (req, res) => {
   const { name, domain, description, industry, website } = req.body;
@@ -54,9 +166,73 @@ const createCompany = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Update a company
- * @route   PUT /api/companies/:id
- * @access  Private/Admin
+ * @swagger
+ * /api/companies/{id}:
+ *   put:
+ *     summary: Update a company
+ *     tags: [Companies]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Company identifier.
+  *       - in: header
+  *         name: X-CSRF-Token
+  *         schema:
+  *           type: string
+  *         required: true
+  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               domain:
+ *                 type: string
+ *                 example: example.com
+ *               description:
+ *                 type: string
+ *               industry:
+ *                 type: string
+ *               website:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Company updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Company'
+ *       400:
+ *         description: Invalid company data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Company not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const updateCompany = asyncHandler(async (req, res) => {
   const company = await Company.findById(req.params.id);
@@ -89,9 +265,55 @@ const updateCompany = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Delete a company
- * @route   DELETE /api/companies/:id
- * @access  Private/Admin
+ * @swagger
+ * /api/companies/{id}:
+ *   delete:
+ *     summary: Delete a company
+ *     tags: [Companies]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Company identifier.
+  *       - in: header
+  *         name: X-CSRF-Token
+  *         schema:
+  *           type: string
+  *         required: true
+  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *     responses:
+ *       200:
+ *         description: Company deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
+ *       400:
+ *         description: Company cannot be deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Company not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const deleteCompany = asyncHandler(async (req, res) => {
   const company = await Company.findById(req.params.id);

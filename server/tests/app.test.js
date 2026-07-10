@@ -30,4 +30,28 @@ describe("csrf protection", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "User logged out" });
   });
+
+  it("allows unsafe cookie-authenticated requests from the same origin", async () => {
+    const response = await request(app)
+      .post("/api/auth/logout")
+      .set("Host", "localhost:5000")
+      .set("Origin", "http://localhost:5000")
+      .set("X-CSRF-Token", "test-csrf-token")
+      .set("Cookie", ["jwt=test-token", "csrfToken=test-csrf-token"]);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: "User logged out" });
+  });
+});
+
+describe("swagger ui", () => {
+  it("serves the API documentation", async () => {
+    const response = await request(app).get("/api/docs/");
+    const initScript = await request(app).get("/api/docs/swagger-ui-init.js");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("Swagger UI");
+    expect(initScript.status).toBe(200);
+    expect(initScript.text).toContain("Ticket Stream API");
+  });
 });

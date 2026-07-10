@@ -15,6 +15,65 @@ const createTimelineEntry = ({
   to,
 });
 
+/**
+ * @swagger
+ * /api/incidents:
+ *   get:
+ *     summary: List incidents
+ *     tags: [Incidents]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number to return.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Maximum number of incidents per page.
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [open, investigating, monitoring, resolved, closed]
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [p1, p2, p3, p4]
+ *       - in: query
+ *         name: severity
+ *         schema:
+ *           type: string
+ *           enum: [critical, high, medium, low]
+ *       - in: query
+ *         name: assignee
+ *         schema:
+ *           type: string
+ *           enum: [me]
+ *         description: Filter incidents assigned to the current user.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Free-text search across title, description, code, application, and service.
+ *     responses:
+ *       200:
+ *         description: Incidents returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/IncidentListResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const listIncidents = asyncHandler(async (req, res) => {
   const page = Number.parseInt(req.query.page || "1", 10);
   const limit = Number.parseInt(req.query.limit || "20", 10);
@@ -59,6 +118,26 @@ const listIncidents = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /api/incidents/summary:
+ *   get:
+ *     summary: Get incident summary metrics
+ *     tags: [Incidents]
+ *     responses:
+ *       200:
+ *         description: Incident summary returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/IncidentSummaryResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const getIncidentSummary = asyncHandler(async (_req, res) => {
   const [statusSummary, prioritySummary, openCount, criticalCount] =
     await Promise.all([
@@ -83,6 +162,39 @@ const getIncidentSummary = asyncHandler(async (_req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /api/incidents/{id}:
+ *   get:
+ *     summary: Get an incident by ID
+ *     tags: [Incidents]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Incident identifier.
+ *     responses:
+ *       200:
+ *         description: Incident returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Incident not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const getIncidentById = asyncHandler(async (req, res) => {
   const incident = await Incident.findById(req.params.id)
     .populate("assignee", "name username email")
@@ -97,6 +209,80 @@ const getIncidentById = asyncHandler(async (req, res) => {
   res.json(incident);
 });
 
+/**
+ * @swagger
+ * /api/incidents:
+ *   post:
+ *     summary: Create an incident
+ *     tags: [Incidents]
+ *     parameters:
+  *       - in: header
+  *         name: X-CSRF-Token
+  *         schema:
+  *           type: string
+  *         required: true
+  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - application
+ *               - service
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               priority:
+ *                 type: string
+ *                 enum: [p1, p2, p3, p4]
+ *               severity:
+ *                 type: string
+ *                 enum: [critical, high, medium, low]
+ *               application:
+ *                 type: string
+ *               service:
+ *                 type: string
+ *               customer:
+ *                 type: string
+ *               environment:
+ *                 type: string
+ *                 enum: [production, staging, development]
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       201:
+ *         description: Incident created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
+ *       400:
+ *         description: Invalid incident data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Role not allowed to create incidents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const createIncident = asyncHandler(async (req, res) => {
   const {
     title,
@@ -145,6 +331,86 @@ const createIncident = asyncHandler(async (req, res) => {
   res.status(201).json(hydratedIncident);
 });
 
+/**
+ * @swagger
+ * /api/incidents/{id}:
+ *   patch:
+ *     summary: Update an incident
+ *     tags: [Incidents]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Incident identifier.
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Required when a valid jwt cookie is present on the request.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               priority:
+ *                 type: string
+ *                 enum: [p1, p2, p3, p4]
+ *               severity:
+ *                 type: string
+ *                 enum: [critical, high, medium, low]
+ *               application:
+ *                 type: string
+ *               service:
+ *                 type: string
+ *               customer:
+ *                 type: string
+ *               environment:
+ *                 type: string
+ *                 enum: [production, staging, development]
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               assignee:
+ *                 type: string
+ *                 nullable: true
+ *               note:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Incident updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Role not allowed to update incidents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Incident not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const updateIncident = asyncHandler(async (req, res) => {
   const incident = await Incident.findById(req.params.id);
 
@@ -209,6 +475,71 @@ const updateIncident = asyncHandler(async (req, res) => {
   res.json(hydratedIncident);
 });
 
+/**
+ * @swagger
+ * /api/incidents/{id}/status:
+ *   patch:
+ *     summary: Update an incident status
+ *     tags: [Incidents]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Incident identifier.
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Required when a valid jwt cookie is present on the request.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [open, investigating, monitoring, resolved, closed]
+ *               note:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Incident status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
+ *       400:
+ *         description: Missing or invalid status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Role not allowed to update incidents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Incident not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const updateIncidentStatus = asyncHandler(async (req, res) => {
   const { status, note } = req.body;
 
@@ -244,6 +575,68 @@ const updateIncidentStatus = asyncHandler(async (req, res) => {
   res.json(hydratedIncident);
 });
 
+/**
+ * @swagger
+ * /api/incidents/{id}/comments:
+ *   post:
+ *     summary: Add a comment to an incident
+ *     tags: [Incidents]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Incident identifier.
+  *       - in: header
+  *         name: X-CSRF-Token
+  *         schema:
+  *           type: string
+  *         required: true
+  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - message
+ *             properties:
+ *               message:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Incident comment added
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
+ *       400:
+ *         description: Comment message is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Role not allowed to comment on incidents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Incident not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 const addIncidentComment = asyncHandler(async (req, res) => {
   const { message } = req.body;
 
