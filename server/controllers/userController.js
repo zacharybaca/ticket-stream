@@ -73,12 +73,19 @@ const getUserProfile = asyncHandler(async (req, res) => {
  *                 type: string
  *                 format: binary
  *     responses:
- *       200:
- *         description: User profile updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/UserProfile'
+  *             schema:
+  *               allOf:
+  *                 - $ref: '#/components/schemas/UserReference'
+  *                 - type: object
+  *                   properties:
+  *                     avatar:
+  *                       type: string
+  *                       nullable: true
+  *                     role:
+  *                       type: string
+  *                       enum: [admin, responder, observer]
+  *                     isAdmin:
+  *                       type: boolean
  *       401:
  *         description: Authentication required
  *         content:
