@@ -66,6 +66,8 @@ export const FetcherProvider = ({ children }) => {
 
     const method = (options.method || 'GET').toUpperCase();
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+      // Keep the cookie fallback for same-origin/local setups where the readable
+      // cookie is still the first CSRF source before any response header sync occurs.
       const csrfToken = getStoredCsrfToken() || getCookieValue('csrfToken');
 
       if (csrfToken) {

@@ -31,9 +31,22 @@ const clearCsrfTokenCookie = (res) => {
   setCsrfTokenHeader(res);
 };
 
+const syncCsrfTokenHeader = (req, res, next) => {
+  if (
+    req.path.startsWith("/api") &&
+    req.cookies?.csrfToken &&
+    !res.get(CSRF_HEADER_NAME)
+  ) {
+    setCsrfTokenHeader(res, req.cookies.csrfToken);
+  }
+
+  next();
+};
+
 export {
   CSRF_HEADER_NAME,
   setCsrfTokenCookie,
   clearCsrfTokenCookie,
   setCsrfTokenHeader,
+  syncCsrfTokenHeader,
 };

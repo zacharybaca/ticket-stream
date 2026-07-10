@@ -11,7 +11,7 @@ import incidentRoutes from "./routes/incidentRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import swaggerSpec from "./swagger.js";
-import { CSRF_HEADER_NAME, setCsrfTokenHeader } from "./utils/csrfToken.js";
+import { CSRF_HEADER_NAME, syncCsrfTokenHeader } from "./utils/csrfToken.js";
 
 const app = express();
 const unsafeMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -128,17 +128,7 @@ app.use("/api/auth", authLimiter);
 // Middleware
 app.use(cors(corsOptions));
 app.use(cookieParser()); // Must come before routes to parse JWT cookies
-app.use((req, res, next) => {
-  if (
-    req.path.startsWith("/api") &&
-    req.cookies?.csrfToken &&
-    !res.get(CSRF_HEADER_NAME)
-  ) {
-    setCsrfTokenHeader(res, req.cookies.csrfToken);
-  }
-
-  next();
-});
+app.use(syncCsrfTokenHeader);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(csrfProtection);
