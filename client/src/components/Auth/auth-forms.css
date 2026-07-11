@@ -110,7 +110,7 @@
   font-weight: 600;
 }
 
-@media (min-width: 501px) and (max-width: 768px) {
+@media (min-width: 500.01px) and (max-width: 768px) {
   .auth-page-container {
     padding: 48px 18px;
   }
