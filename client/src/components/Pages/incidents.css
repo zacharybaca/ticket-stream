@@ -198,7 +198,7 @@
   width: 100%;
 }
 
-@media (min-width: 501px) and (max-width: 768px) {
+@media (min-width: 500.01px) and (max-width: 768px) {
   .incidents-layout {
     width: 94%;
     padding: 1.25rem 0 2rem;
