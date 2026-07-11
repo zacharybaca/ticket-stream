@@ -36,12 +36,16 @@ const setStoredCsrfToken = (csrfToken) => {
     return;
   }
 
-  if (csrfToken) {
-    window.sessionStorage.setItem(CSRF_STORAGE_KEY, csrfToken);
-    return;
-  }
+  try {
+    if (csrfToken) {
+      window.sessionStorage.setItem(CSRF_STORAGE_KEY, csrfToken);
+      return;
+    }
 
-  window.sessionStorage.removeItem(CSRF_STORAGE_KEY);
+    window.sessionStorage.removeItem(CSRF_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures (e.g., disabled storage) so requests still succeed.
+  }
 };
 
 // Use VITE_BACKEND_URL when set (e.g., cross-origin production deployment).
