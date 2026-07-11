@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { describe, expect, it, beforeEach, afterAll, vi } from 'vitest';
 import { render, waitFor } from '@testing-library/react';
 import { useEffect } from 'react';
 import { FetcherProvider } from '../contexts/Fetcher/FetcherProvider.jsx';
@@ -8,6 +8,9 @@ const mockFetch = vi.fn();
 
 vi.stubGlobal('fetch', mockFetch);
 
+afterAll(() => {
+  vi.unstubAllGlobals();
+});
 const FetchProbe = ({ request }) => {
   const { fetcher } = useFetcher();
 
