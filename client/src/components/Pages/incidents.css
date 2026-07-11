@@ -198,6 +198,61 @@
   width: 100%;
 }
 
+/* =========================================
+   MOBILE INCIDENT CARD LIST
+   ========================================= */
+.incidents-card-list {
+  display: none;
+}
+
+.incident-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.9rem;
+  margin-bottom: 0.65rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.incident-card:hover {
+  background-color: #f9fafb;
+}
+
+.incident-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.incident-card-title {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.incident-card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem 1rem;
+}
+
+.incident-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.incident-card-value {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #111827;
+}
+
 @media (min-width: 500.01px) and (max-width: 768px) {
   .incidents-layout {
     width: 94%;
@@ -218,11 +273,11 @@
   }
 
   .incidents-table-wrapper {
-    overflow-x: auto;
+    display: none;
   }
 
-  .incidents-table {
-    min-width: 680px;
+  .incidents-card-list {
+    display: block;
   }
 }
 
@@ -268,10 +323,14 @@
   }
 
   .incidents-table-wrapper {
-    overflow-x: auto;
+    display: none;
   }
 
-  .incidents-table {
-    min-width: 650px;
+  .incidents-card-list {
+    display: block;
+  }
+
+  .incident-card-meta {
+    grid-template-columns: 1fr;
   }
 }

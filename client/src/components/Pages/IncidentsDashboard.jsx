@@ -149,56 +149,123 @@ const IncidentsDashboard = () => {
       {loading ? (
         <p>Loading incidents...</p>
       ) : (
+        <>
 <div className="incidents-table-wrapper" role="region" aria-label="Incidents table" tabIndex={0}>
-          <table className="incidents-table">
-            <thead>
-              <tr>
-                <th>Incident</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Application</th>
-                <th>Assignee</th>
-                <th>Last updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {incidents.length === 0 ? (
+            <table className="incidents-table">
+              <thead>
                 <tr>
-                  <td colSpan={6}>
-                    No incidents found for the selected filters.
-                  </td>
+                  <th>Incident</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Application</th>
+                  <th>Assignee</th>
+                  <th>Last updated</th>
                 </tr>
-              ) : (
-                incidents.map((incident) => (
-                  <tr key={incident._id}>
-                    <td>
-                      <button
-                        className="table-link-btn"
-                        onClick={() => navigate(`/incidents/${incident._id}`)}
-                      >
-                        {incident.incidentCode} — {incident.title}
-                      </button>
-                    </td>
-                    <td>{incident.priority?.toUpperCase()}</td>
-                    <td>
-                      <StatusBadge status={incident.status} />
-                    </td>
-                    <td>
-                      {incident.application}
-                      <div className="muted-text">{incident.service}</div>
-                    </td>
-                    <td>{incident.assignee?.name || 'Unassigned'}</td>
-                    <td>
-                      {formatDistanceToNow(new Date(incident.updatedAt), {
-                        addSuffix: true,
-                      })}
+              </thead>
+              <tbody>
+                {incidents.length === 0 ? (
+                  <tr>
+                    <td colSpan={6}>
+                      No incidents found for the selected filters.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  incidents.map((incident) => (
+                    <tr key={incident._id}>
+                      <td>
+                        <button
+                          className="table-link-btn"
+                          onClick={() => navigate(`/incidents/${incident._id}`)}
+                        >
+                          {incident.incidentCode} — {incident.title}
+                        </button>
+                      </td>
+                      <td>{incident.priority?.toUpperCase()}</td>
+                      <td>
+                        <StatusBadge status={incident.status} />
+                      </td>
+                      <td>
+                        {incident.application}
+                        <div className="muted-text">{incident.service}</div>
+                      </td>
+                      <td>{incident.assignee?.name || 'Unassigned'}</td>
+                      <td>
+                        {formatDistanceToNow(new Date(incident.updatedAt), {
+                          addSuffix: true,
+                        })}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="incidents-card-list" aria-label="Incidents list">
+            {incidents.length === 0 ? (
+              <p className="muted-text">
+                No incidents found for the selected filters.
+              </p>
+            ) : (
+              incidents.map((incident) => (
+                <div
+                  key={incident._id}
+                  className="incident-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/incidents/${incident._id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/incidents/${incident._id}`);
+                    }
+                  }}
+                >
+                  <div className="incident-card-header">
+                    <span className="table-link-btn incident-card-title">
+                      {incident.incidentCode} — {incident.title}
+                    </span>
+                    <StatusBadge status={incident.status} />
+                  </div>
+                  <div className="incident-card-meta">
+                    <div className="incident-card-field">
+                      <span className="metric-label">Priority</span>
+                      <span className="incident-card-value">
+                        {incident.priority?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="incident-card-field">
+                      <span className="metric-label">Assignee</span>
+                      <span className="incident-card-value">
+                        {incident.assignee?.name || 'Unassigned'}
+                      </span>
+                    </div>
+                    <div className="incident-card-field">
+                      <span className="metric-label">Application</span>
+                      <span className="incident-card-value">
+                        {incident.application}
+                        {incident.service && (
+                          <span className="muted-text">
+                            {' '}
+                            / {incident.service}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="incident-card-field">
+                      <span className="metric-label">Last updated</span>
+                      <span className="incident-card-value">
+                        {formatDistanceToNow(new Date(incident.updatedAt), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
       )}
     </div>
   );
