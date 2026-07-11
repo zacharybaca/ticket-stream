@@ -92,7 +92,7 @@
   font-size: 0.95rem;
 }
 
-@media (min-width: 501px) and (max-width: 768px) {
+@media (min-width: 500.01px) and (max-width: 768px) {
   .home-page {
     width: min(94%, 700px);
     padding: 1.25rem 0 2rem;
