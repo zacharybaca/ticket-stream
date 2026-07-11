@@ -1,6 +1,9 @@
 import { useState, useCallback, useMemo } from 'react';
 import { FetcherContext } from './FetcherContext.jsx';
 
+const CSRF_STORAGE_KEY = 'ticket-stream.csrf-token';
+const CSRF_HEADER_NAME = 'X-CSRF-Token';
+
 // Pure utility — defined once at module level to avoid recreation on every render.
 const getCookieValue = (name) => {
   // Guard tests and any non-browser execution paths where cookies are unavailable.
@@ -14,6 +17,35 @@ const getCookieValue = (name) => {
     .find((entry) => entry.startsWith(`${name}=`));
 
   return cookie ? decodeURIComponent(cookie.substring(name.length + 1)) : '';
+};
+
+const getStoredCsrfToken = () => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  try {
+    return window.sessionStorage.getItem(CSRF_STORAGE_KEY) || '';
+  } catch {
+    return '';
+  }
+};
+
+const setStoredCsrfToken = (csrfToken) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    if (csrfToken) {
+      window.sessionStorage.setItem(CSRF_STORAGE_KEY, csrfToken);
+      return;
+    }
+
+    window.sessionStorage.removeItem(CSRF_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures (e.g., disabled storage) so requests still succeed.
+  }
 };
 
 // Use VITE_BACKEND_URL when set (e.g., cross-origin production deployment).
@@ -42,10 +74,12 @@ export const FetcherProvider = ({ children }) => {
 
     const method = (options.method || 'GET').toUpperCase();
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-      const csrfToken = getCookieValue('csrfToken');
+      // Keep the cookie fallback for same-origin/local setups where the readable
+      // cookie is still the first CSRF source before any response header sync occurs.
+      const csrfToken = getStoredCsrfToken() || getCookieValue('csrfToken');
 
       if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
+        headers[CSRF_HEADER_NAME] = csrfToken;
       }
     }
 
@@ -58,6 +92,14 @@ export const FetcherProvider = ({ children }) => {
 
     try {
       let response = await fetch(finalUrl, config);
+      const responseCsrfToken = response.headers.get(CSRF_HEADER_NAME);
+      const isApiRequest =
+        (backendUrl && finalUrl.startsWith(`${backendUrl}/api`)) ||
+        (!backendUrl && finalUrl.startsWith('/api'));
+
+      if (isApiRequest && responseCsrfToken !== null) {
+        setStoredCsrfToken(responseCsrfToken);
+      }
 
       // 1. Handle Rate Limiting (429)
       if (response.status === 429) {
