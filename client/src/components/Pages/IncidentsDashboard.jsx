@@ -149,54 +149,56 @@ const IncidentsDashboard = () => {
       {loading ? (
         <p>Loading incidents...</p>
       ) : (
-        <table className="incidents-table">
-          <thead>
-            <tr>
-              <th>Incident</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Application</th>
-              <th>Assignee</th>
-              <th>Last updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {incidents.length === 0 ? (
+<div className="incidents-table-wrapper" role="region" aria-label="Incidents table" tabIndex={0}>
+          <table className="incidents-table">
+            <thead>
               <tr>
-                <td colSpan={6}>
-                  No incidents found for the selected filters.
-                </td>
+                <th>Incident</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Application</th>
+                <th>Assignee</th>
+                <th>Last updated</th>
               </tr>
-            ) : (
-              incidents.map((incident) => (
-                <tr key={incident._id}>
-                  <td>
-                    <button
-                      className="table-link-btn"
-                      onClick={() => navigate(`/incidents/${incident._id}`)}
-                    >
-                      {incident.incidentCode} — {incident.title}
-                    </button>
-                  </td>
-                  <td>{incident.priority?.toUpperCase()}</td>
-                  <td>
-                    <StatusBadge status={incident.status} />
-                  </td>
-                  <td>
-                    {incident.application}
-                    <div className="muted-text">{incident.service}</div>
-                  </td>
-                  <td>{incident.assignee?.name || 'Unassigned'}</td>
-                  <td>
-                    {formatDistanceToNow(new Date(incident.updatedAt), {
-                      addSuffix: true,
-                    })}
+            </thead>
+            <tbody>
+              {incidents.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>
+                    No incidents found for the selected filters.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                incidents.map((incident) => (
+                  <tr key={incident._id}>
+                    <td>
+                      <button
+                        className="table-link-btn"
+                        onClick={() => navigate(`/incidents/${incident._id}`)}
+                      >
+                        {incident.incidentCode} — {incident.title}
+                      </button>
+                    </td>
+                    <td>{incident.priority?.toUpperCase()}</td>
+                    <td>
+                      <StatusBadge status={incident.status} />
+                    </td>
+                    <td>
+                      {incident.application}
+                      <div className="muted-text">{incident.service}</div>
+                    </td>
+                    <td>{incident.assignee?.name || 'Unassigned'}</td>
+                    <td>
+                      {formatDistanceToNow(new Date(incident.updatedAt), {
+                        addSuffix: true,
+                      })}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

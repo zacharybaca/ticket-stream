@@ -26,6 +26,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .page-content {
@@ -65,5 +66,33 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (min-width: 500.01px) and (max-width: 768px) {
+  .page-content {
+    padding: 48px 18px;
+  }
+
+  .hero-section {
+    padding: 64px 18px;
+  }
+
+  .hero-section h1 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .page-content {
+    padding: 32px 12px;
+  }
+
+  .hero-section {
+    padding: 48px 12px;
+  }
+
+  .hero-section h1 {
+    font-size: 1.7rem;
   }
 }
