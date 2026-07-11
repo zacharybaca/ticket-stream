@@ -93,8 +93,11 @@ export const FetcherProvider = ({ children }) => {
     try {
       let response = await fetch(finalUrl, config);
       const responseCsrfToken = response.headers.get(CSRF_HEADER_NAME);
+      const isApiRequest =
+        (backendUrl && finalUrl.startsWith(`${backendUrl}/api`)) ||
+        (!backendUrl && finalUrl.startsWith('/api'));
 
-      if (responseCsrfToken !== null) {
+      if (isApiRequest && responseCsrfToken !== null) {
         setStoredCsrfToken(responseCsrfToken);
       }
 
