@@ -149,7 +149,7 @@ const IncidentsDashboard = () => {
       {loading ? (
         <p>Loading incidents...</p>
       ) : (
-        <div className="incidents-table-wrapper">
+<div className="incidents-table-wrapper" role="region" aria-label="Incidents table" tabIndex={0}>
           <table className="incidents-table">
             <thead>
               <tr>
