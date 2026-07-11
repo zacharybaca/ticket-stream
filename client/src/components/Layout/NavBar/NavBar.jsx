@@ -39,7 +39,7 @@ const NavBar = () => {
     <nav className="main-nav">
       <div className="nav-container">
         <Link to="/" className="nav-logo-link">
-          <NavbarLogo />
+          <NavbarLogo className="nav-logo-svg" />
         </Link>
 
         <ul className="nav-links">

@@ -21,3 +21,28 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+@media (min-width: 501px) and (max-width: 768px) {
+  .page-header {
+    padding: 60px 18px;
+  }
+
+  .header-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .page-header {
+    padding: 44px 12px;
+  }
+
+  .header-title {
+    font-size: 1.55rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.95rem;
+    margin-top: 10px;
+  }
+}

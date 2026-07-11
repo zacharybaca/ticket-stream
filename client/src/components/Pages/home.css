@@ -91,3 +91,56 @@
   color: #4b5563;
   font-size: 0.95rem;
 }
+
+@media (min-width: 501px) and (max-width: 768px) {
+  .home-page {
+    width: min(94%, 700px);
+    padding: 1.25rem 0 2rem;
+  }
+
+  .hero-section {
+    padding: 1.8rem 1.15rem;
+  }
+
+  .hero-section h1 {
+    font-size: 1.85rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .home-page {
+    width: 94%;
+    padding: 1rem 0 1.75rem;
+  }
+
+  .home-logo {
+    max-width: 270px;
+  }
+
+  .hero-section {
+    padding: 1.45rem 1rem;
+    border-radius: 12px;
+  }
+
+  .hero-section h1 {
+    font-size: 1.55rem;
+  }
+
+  .home-lead {
+    font-size: 0.95rem;
+  }
+
+  .hero-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .primary-home-btn,
+  .secondary-home-btn {
+    width: 100%;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}

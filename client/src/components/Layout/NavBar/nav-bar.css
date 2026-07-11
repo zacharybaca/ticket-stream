@@ -228,3 +228,62 @@
 .nav-logo-link:hover .nav-logo-svg rect[fill='#34a853'] {
   fill: #10b981;
 }
+
+@media (min-width: 501px) and (max-width: 768px) {
+  .nav-container {
+    padding: 12px 20px;
+    flex-wrap: wrap;
+    row-gap: 0.85rem;
+  }
+
+  .nav-logo-svg {
+    max-width: 220px;
+    height: 36px;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 500px) {
+  .nav-container {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .nav-logo-link {
+    justify-content: center;
+  }
+
+  .nav-logo-svg {
+    max-width: 185px;
+    height: 30px;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .nav-item,
+  .dropdown-toggle {
+    font-size: 0.92rem;
+  }
+
+  .nav-username {
+    display: none;
+  }
+
+  .dropdown-menu {
+    width: min(220px, calc(100vw - 24px));
+    right: 0;
+  }
+}
