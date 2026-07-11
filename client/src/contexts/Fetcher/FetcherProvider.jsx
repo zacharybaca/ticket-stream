@@ -24,7 +24,11 @@ const getStoredCsrfToken = () => {
     return '';
   }
 
-  return window.sessionStorage.getItem(CSRF_STORAGE_KEY) || '';
+  try {
+    return window.sessionStorage.getItem(CSRF_STORAGE_KEY) || '';
+  } catch {
+    return '';
+  }
 };
 
 const setStoredCsrfToken = (csrfToken) => {
