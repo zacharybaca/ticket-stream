@@ -371,6 +371,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 const resetPassword = asyncHandler(async (req, res) => {
+  // The raw reset token is only sent by email; the database stores its hash so a
+  // leaked database cannot be used to replay password reset links.
   const resetPasswordToken = crypto
     .createHash("sha256")
     .update(req.params.resettoken)

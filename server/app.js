@@ -58,6 +58,8 @@ const getRequestOrigin = (req) => {
   }
 
   try {
+    // Some browser navigations omit Origin on same-site form posts, so fall
+    // back to Referer when we need to reconstruct the calling origin.
     return new URL(refererHeader).origin;
   } catch {
     return null;
@@ -73,7 +75,8 @@ const csrfProtection = (req, res, next) => {
   const csrfHeader = req.get("x-csrf-token");
   const csrfCookie = req.cookies.csrfToken;
 
-  // If a legacy/stale auth cookie exists without a CSRF token cookie, clear it to avoid locking users out.
+  // Clear stale auth cookies here so users can immediately log back in instead
+  // of getting trapped behind a missing CSRF token they can no longer recover.
   if (!csrfCookie) {
     res.cookie("jwt", "", {
       httpOnly: true,
