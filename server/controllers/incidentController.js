@@ -88,6 +88,8 @@ const listIncidents = asyncHandler(async (req, res) => {
 
   if (req.query.search) {
     const searchRegex = new RegExp(req.query.search.trim(), "i");
+    // Keep search broad across the fields operators tend to know during an
+    // incident, not just the generated incident code.
     filters.$or = [
       { title: searchRegex },
       { description: searchRegex },

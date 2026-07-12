@@ -28,6 +28,8 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 
   if (req.originalUrl === "/api/users/me") {
+    // The profile probe doubles as a "who am I?" check for the client, so it
+    // falls through without auth and lets the controller return an anonymous state.
     return next();
   }
 

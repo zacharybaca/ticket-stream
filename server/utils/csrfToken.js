@@ -3,6 +3,8 @@ import crypto from "crypto";
 const CSRF_HEADER_NAME = "X-CSRF-Token";
 
 const csrfCookieOptions = {
+  // The CSRF token must stay readable by the client so it can be echoed back in
+  // the header for cross-origin authenticated writes.
   httpOnly: false,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -37,6 +39,8 @@ const syncCsrfTokenHeader = (req, res, next) => {
     req.cookies?.csrfToken &&
     !res.get(CSRF_HEADER_NAME)
   ) {
+    // Keep the latest token mirrored in a response header so cross-origin
+    // clients can refresh sessionStorage without re-reading cookies.
     setCsrfTokenHeader(res, req.cookies.csrfToken);
   }
 
