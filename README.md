@@ -107,7 +107,24 @@ CLOUDINARY_KEY=
 CLOUDINARY_SECRET=
 ```
 
-### 3) Start the app
+### 3) (Optional) Configure Clerk
+
+[Clerk](https://clerk.com) is wired in and ready to use. To activate it, create `client/.env.local` and add your Publishable Key from the Clerk dashboard:
+
+```env
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+```
+
+Without this key, the app is rendered without Clerk (no `ClerkProvider` is mounted). The existing JWT-cookie auth works independently of Clerk and requires no changes to use.
+
+Once the key is set, Clerk's hooks are available from `@clerk/react-router` (e.g. `useUser`, `useAuth`, `SignIn`, `SignUp`) or via the project's convenience wrapper:
+
+```js
+import { useClerkAuth } from './hooks/useClerkAuth';
+const { user, isSignedIn, getToken, signOut } = useClerkAuth();
+```
+
+### 4) Start the app
 
 ```bash
 npm run dev
@@ -116,7 +133,7 @@ npm run dev
 - Frontend: `http://localhost:5173`
 - Backend API: `http://localhost:5000`
 
-### 4) (Optional) Seed demo data
+### 5) (Optional) Seed demo data
 
 ```bash
 npm run seed:sample
