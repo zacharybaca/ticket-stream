@@ -115,7 +115,7 @@ CLOUDINARY_SECRET=
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 ```
 
-Without this key, Clerk's `ClerkProvider` is still present in the tree but remains inactive. The existing JWT-cookie auth works independently of Clerk and requires no changes to use.
+Without this key, the app is rendered without Clerk (no `ClerkProvider` is mounted). The existing JWT-cookie auth works independently of Clerk and requires no changes to use.
 
 Once the key is set, Clerk's hooks are available from `@clerk/react-router` (e.g. `useUser`, `useAuth`, `SignIn`, `SignUp`) or via the project's convenience wrapper:
 
