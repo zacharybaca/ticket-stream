@@ -12,15 +12,20 @@ import { useUser, useAuth, useSignIn, useSignUp, useClerk } from '@clerk/react-r
 export const useClerkAuth = () => {
   const { user, isLoaded: isUserLoaded, isSignedIn } = useUser();
   const { getToken, signOut } = useAuth();
-  const { signIn } = useSignIn();
-  const { signUp } = useSignUp();
+  const { isLoaded: isSignInLoaded, signIn } = useSignIn();
+  const { isLoaded: isSignUpLoaded, signUp } = useSignUp();
   const clerk = useClerk();
+
+  const isLoaded = isUserLoaded && isSignInLoaded && isSignUpLoaded;
 
   return {
     /** The current Clerk user object, or null when signed out. */
     user,
-    /** True once Clerk has finished loading session state from the server. */
-    isLoaded: isUserLoaded,
+    /**
+     * True once Clerk has finished loading the underlying resources returned by this hook.
+     * When false, `signIn`/`signUp` may be undefined and should not be used yet.
+     */
+    isLoaded,
     /** True when an active Clerk session exists. */
     isSignedIn,
     /**
