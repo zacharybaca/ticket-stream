@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ClerkProvider } from '@clerk/react-router';
+import { ClerkProvider } from '@clerk/clerk-react';
 import { AppProvider } from './contexts/AppProvider.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
