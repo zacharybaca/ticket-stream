@@ -22,7 +22,7 @@ export const useClerkAuth = () => {
     /** The current Clerk user object, or null when signed out. */
     user,
     /**
-     * True once Clerk has finished loading the underlying resources returned by this hook.
+     * True once Clerk has finished loading core auth readiness (`useUser` + `useAuth`).
      * `signIn`/`signUp` expose their own readiness flags (`isSignInLoaded` and
      * `isSignUpLoaded`) because those resources can initialize independently.
      */
