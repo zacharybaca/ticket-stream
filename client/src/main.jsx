@@ -11,25 +11,21 @@ import './index.css';
 import App from './App.jsx';
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const appTree = (
+  <BrowserRouter>
+    <AppProvider>
+      <App />
+      <ToastContainer position="top-right" autoClose={4000} />
+    </AppProvider>
+  </BrowserRouter>
+);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {CLERK_PUBLISHABLE_KEY ? (
-      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-        <BrowserRouter>
-          <AppProvider>
-            <App />
-            <ToastContainer position="top-right" autoClose={4000} />
-          </AppProvider>
-        </BrowserRouter>
-      </ClerkProvider>
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>{appTree}</ClerkProvider>
     ) : (
-      <BrowserRouter>
-        <AppProvider>
-          <App />
-          <ToastContainer position="top-right" autoClose={4000} />
-        </AppProvider>
-      </BrowserRouter>
+      appTree
     )}
   </StrictMode>
 );
