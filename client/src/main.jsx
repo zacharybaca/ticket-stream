@@ -14,20 +14,22 @@ const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      {CLERK_PUBLISHABLE_KEY ? (
-        <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+    {CLERK_PUBLISHABLE_KEY ? (
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <BrowserRouter>
           <AppProvider>
             <App />
             <ToastContainer position="top-right" autoClose={4000} />
           </AppProvider>
-        </ClerkProvider>
-      ) : (
+        </BrowserRouter>
+      </ClerkProvider>
+    ) : (
+      <BrowserRouter>
         <AppProvider>
           <App />
           <ToastContainer position="top-right" autoClose={4000} />
         </AppProvider>
-      )}
-    </BrowserRouter>
+      </BrowserRouter>
+    )}
   </StrictMode>
 );
