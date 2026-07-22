@@ -1,4 +1,4 @@
-import { SignIn, CreateOrganization } from '@clerk/react-router';
+import { SignIn, CreateOrganization } from '@clerk/clerk-react';
 import { useClerkAuth } from '../../hooks/useClerkAuth.js';
 import './create-organization-page.css';
 
