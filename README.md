@@ -11,7 +11,13 @@ Ticket Stream follows a client/server architecture with a React SPA and a Node.j
 - **Data layer**: MongoDB stores users, companies, and incidents (including timeline events).
 - **Realtime foundation**: Socket.IO is initialized on the server for event-driven updates.
 
+
+
+
+
 ### High-level flow
+
+
 
 1. User authenticates through `/api/auth`.
 2. Server issues an HTTP-only JWT cookie.
@@ -22,6 +28,7 @@ Ticket Stream follows a client/server architecture with a React SPA and a Node.j
 ## Technology Stack
 
 ### Frontend
+
 - React 19
 - Vite
 - React Router
@@ -31,6 +38,7 @@ Ticket Stream follows a client/server architecture with a React SPA and a Node.j
 - Vitest + Testing Library
 
 ### Backend
+
 - Node.js (ESM)
 - Express
 - MongoDB + Mongoose
@@ -40,6 +48,7 @@ Ticket Stream follows a client/server architecture with a React SPA and a Node.j
 - Nodemailer + Cloudinary integrations
 
 ### Tooling
+
 - ESLint
 - Prettier
 - Husky + lint-staged
@@ -202,6 +211,7 @@ npm run seed:sample
 Default seed password (unless `DEMO_PASSWORD` is set): `DemoPass123!`
 
 Demo users:
+
 - `admin@northwind.io` (admin)
 - `maya@northwind.io`
 - `jordan@northwind.io`
@@ -212,6 +222,7 @@ Demo users:
 ## Scripts
 
 ### Root
+
 - `npm run install-all` – install root/client/server dependencies
 - `npm run dev` – run client and server together
 - `npm run client` – run frontend only
@@ -220,17 +231,20 @@ Demo users:
 - `npm run format` – format client/server source files
 
 ### Client (`/client`)
+
 - `npm run lint`
 - `npm run build`
 - `npm run test`
 
 ### Server (`/server`)
+
 - `npm run dev`
 - `npm run test`
 
 ## API Overview
 
 ### Auth
+
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `POST /api/auth/logout`
@@ -239,11 +253,13 @@ Demo users:
 - `PUT /api/auth/resetpassword/:resettoken`
 
 ### Users
+
 - `GET /api/users/profile`
 - `PUT /api/users/profile`
 - `DELETE /api/users/profile`
 
 ### Incidents (protected)
+
 - `GET /api/incidents`
 - `POST /api/incidents`
 - `GET /api/incidents/summary`
@@ -253,6 +269,7 @@ Demo users:
 - `POST /api/incidents/:id/comments`
 
 ### Companies (admin-protected)
+
 - `GET /api/companies`
 - `POST /api/companies`
 - `GET /api/companies/:id`
