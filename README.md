@@ -124,6 +124,66 @@ import { useClerkAuth } from './hooks/useClerkAuth';
 const { user, isSignedIn, getToken, signOut } = useClerkAuth();
 ```
 
+### Adding Clerk UI Components
+
+Once `VITE_CLERK_PUBLISHABLE_KEY` is set and `<ClerkProvider>` is active, adding any Clerk pre-built UI component follows the same three-step pattern.
+
+#### Step 1 — Create a page component
+
+Import the component from `@clerk/react-router` and render it inside a centered wrapper. Pass `routing="path"` and `path` matching the route you plan to register.
+
+```jsx
+// client/src/components/Pages/OrganizationProfilePage.jsx
+import { OrganizationProfile } from '@clerk/react-router';
+
+const OrganizationProfilePage = () => (
+  <div className="page-content" style={{ display: 'flex', justifyContent: 'center', paddingTop: '2rem' }}>
+    <OrganizationProfile routing="path" path="/org/settings" />
+  </div>
+);
+
+export default OrganizationProfilePage;
+```
+
+Available components and suggested paths:
+
+| Component | Import name | Suggested path |
+|---|---|---|
+| Sign-in form | `SignIn` | `/login` |
+| Sign-up form | `SignUp` | `/register` |
+| User profile | `UserProfile` | `/account` |
+| Org switcher | `OrganizationSwitcher` | navbar / sidebar |
+| Org list | `OrganizationList` | `/organizations` |
+| Create org | `CreateOrganization` | `/organizations/new` |
+| Org profile | `OrganizationProfile` | `/org/settings` |
+
+#### Step 2 — Register the route in `App.jsx`
+
+Add the route inside the `<Route element={<ProtectedRoute />}>` block for auth-gated pages, or at the top level for public pages (e.g. sign-in):
+
+```jsx
+// App.jsx
+import OrganizationProfilePage from './components/Pages/OrganizationProfilePage';
+
+// inside <Routes> → <Route path="/" element={<Layout />}>:
+<Route element={<ProtectedRoute />}>
+  {/* ...existing routes... */}
+  <Route path="org/settings/*" element={<OrganizationProfilePage />} />
+</Route>
+```
+
+> **Note:** Components with multi-step internal navigation (`UserProfile`, `OrganizationProfile`) need a wildcard `/*` suffix on the route so React Router doesn't intercept Clerk's internal path changes. Single-step components like `CreateOrganization` do not require this.
+
+#### Step 3 — (Optional) Link to the route
+
+Add a `<Link>` anywhere in the app to navigate to the new page:
+
+```jsx
+import { Link } from 'react-router-dom';
+
+<Link to="/org/settings">Organization Settings</Link>
+```
+
 ### 4) Start the app
 
 ```bash

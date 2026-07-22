@@ -8,6 +8,7 @@ import IncidentsDashboard from './components/Pages/IncidentsDashboard';
 import IncidentCreate from './components/Pages/IncidentCreate';
 import IncidentDetails from './components/Pages/IncidentDetails';
 import ProtectedRoute from './components/Utility/ProtectedRoute/ProtectedRoute';
+import CreateOrganizationPage from './components/Pages/CreateOrganizationPage';
 import './App.css';
 
 // The Layout Component: Wraps pages with Header and Footer
@@ -37,6 +38,7 @@ function App() {
           <Route path="incidents" element={<IncidentsDashboard />} />
           <Route path="incidents/new" element={<IncidentCreate />} />
           <Route path="incidents/:incidentId" element={<IncidentDetails />} />
+          <Route path="organizations/new" element={<CreateOrganizationPage />} />
         </Route>
 
         {/* Catch-all for 404s */}
