@@ -11,19 +11,20 @@ import { useUser, useAuth, useSignIn, useSignUp, useClerk } from '@clerk/react-r
  */
 export const useClerkAuth = () => {
   const { user, isLoaded: isUserLoaded, isSignedIn } = useUser();
-  const { getToken, signOut } = useAuth();
+  const { isLoaded: isAuthLoaded, getToken, signOut } = useAuth();
   const { isLoaded: isSignInLoaded, signIn } = useSignIn();
   const { isLoaded: isSignUpLoaded, signUp } = useSignUp();
   const clerk = useClerk();
 
-  const isLoaded = isUserLoaded && isSignInLoaded && isSignUpLoaded;
+  const isLoaded = isUserLoaded && isAuthLoaded;
 
   return {
     /** The current Clerk user object, or null when signed out. */
     user,
     /**
-     * True once Clerk has finished loading the underlying resources returned by this hook.
-     * When false, `signIn`/`signUp` may be undefined and should not be used yet.
+     * True once Clerk has finished loading core auth readiness (`useUser` + `useAuth`).
+     * `signIn`/`signUp` expose their own readiness flags (`isSignInLoaded` and
+     * `isSignUpLoaded`) because those resources can initialize independently.
      */
     isLoaded,
     /** True when an active Clerk session exists. */
@@ -37,8 +38,12 @@ export const useClerkAuth = () => {
     signOut,
     /** Clerk's signIn resource — use to programmatically trigger sign-in flows. */
     signIn,
+    /** True once Clerk's signIn resource is ready. */
+    isSignInLoaded,
     /** Clerk's signUp resource — use to programmatically trigger sign-up flows. */
     signUp,
+    /** True once Clerk's signUp resource is ready. */
+    isSignUpLoaded,
     /** The raw Clerk instance for advanced use cases (e.g., openSignIn modal). */
     clerk,
   };
