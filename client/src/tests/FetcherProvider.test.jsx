@@ -25,7 +25,8 @@ describe('FetcherProvider', () => {
   beforeEach(() => {
     mockFetch.mockReset();
     window.sessionStorage.clear();
-    document.cookie = 'csrfToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    document.cookie =
+      'csrfToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
   });
 
   it('reuses a csrf token returned in a prior response header for later unsafe requests', async () => {
@@ -58,7 +59,10 @@ describe('FetcherProvider', () => {
         <FetchProbe
           request={{
             url: '/api/incidents/123/status',
-            options: { method: 'PATCH', body: JSON.stringify({ status: 'resolved' }) },
+            options: {
+              method: 'PATCH',
+              body: JSON.stringify({ status: 'resolved' }),
+            },
           }}
         />
       </FetcherProvider>
@@ -93,7 +97,9 @@ describe('FetcherProvider', () => {
 
     render(
       <FetcherProvider>
-        <FetchProbe request={{ url: '/api/auth/logout', options: { method: 'POST' } }} />
+        <FetchProbe
+          request={{ url: '/api/auth/logout', options: { method: 'POST' } }}
+        />
       </FetcherProvider>
     );
 
@@ -101,6 +107,8 @@ describe('FetcherProvider', () => {
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
-    expect(window.sessionStorage.getItem('ticket-stream.csrf-token')).toBeNull();
+    expect(
+      window.sessionStorage.getItem('ticket-stream.csrf-token')
+    ).toBeNull();
   });
 });

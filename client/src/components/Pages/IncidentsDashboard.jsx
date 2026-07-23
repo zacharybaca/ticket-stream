@@ -112,11 +112,7 @@ const IncidentsDashboard = () => {
           onChange={handleFilterChange}
           placeholder="Search title, app, service, incident code"
         />
-        <select
-          name="status"
-          value={status}
-          onChange={handleFilterChange}
-        >
+        <select name="status" value={status} onChange={handleFilterChange}>
           <option value="">All statuses</option>
           <option value="open">Open</option>
           <option value="investigating">Investigating</option>
@@ -124,22 +120,14 @@ const IncidentsDashboard = () => {
           <option value="resolved">Resolved</option>
           <option value="closed">Closed</option>
         </select>
-        <select
-          name="priority"
-          value={priority}
-          onChange={handleFilterChange}
-        >
+        <select name="priority" value={priority} onChange={handleFilterChange}>
           <option value="">All priorities</option>
           <option value="p1">P1</option>
           <option value="p2">P2</option>
           <option value="p3">P3</option>
           <option value="p4">P4</option>
         </select>
-        <select
-          name="assignee"
-          value={assignee}
-          onChange={handleFilterChange}
-        >
+        <select name="assignee" value={assignee} onChange={handleFilterChange}>
           <option value="">Any assignee</option>
           <option value="me">Assigned to me</option>
         </select>
@@ -150,7 +138,12 @@ const IncidentsDashboard = () => {
         <p>Loading incidents...</p>
       ) : (
         <>
-<div className="incidents-table-wrapper" role="region" aria-label="Incidents table" tabIndex={0}>
+          <div
+            className="incidents-table-wrapper"
+            role="region"
+            aria-label="Incidents table"
+            tabIndex={0}
+          >
             <table className="incidents-table">
               <thead>
                 <tr>

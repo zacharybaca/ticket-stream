@@ -1,4 +1,10 @@
-import { useUser, useAuth, useSignIn, useSignUp, useClerk } from '@clerk/clerk-react';
+import {
+  useUser,
+  useAuth,
+  useSignIn,
+  useSignUp,
+  useClerk,
+} from '@clerk/clerk-react';
 
 /**
  * Convenience wrapper around Clerk's core hooks.

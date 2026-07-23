@@ -38,7 +38,10 @@ function App() {
           <Route path="incidents" element={<IncidentsDashboard />} />
           <Route path="incidents/new" element={<IncidentCreate />} />
           <Route path="incidents/:incidentId" element={<IncidentDetails />} />
-          <Route path="organizations/new" element={<CreateOrganizationPage />} />
+          <Route
+            path="organizations/new"
+            element={<CreateOrganizationPage />}
+          />
         </Route>
 
         {/* Catch-all for 404s */}

@@ -23,7 +23,10 @@ describe("csrf token helpers", () => {
         httpOnly: false,
       }),
     );
-    expect(res.set).toHaveBeenCalledWith(CSRF_HEADER_NAME, "cross-origin-token");
+    expect(res.set).toHaveBeenCalledWith(
+      CSRF_HEADER_NAME,
+      "cross-origin-token",
+    );
   });
 
   it("clears both the csrf cookie and response header", () => {

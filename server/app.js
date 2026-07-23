@@ -39,7 +39,8 @@ const isTrustedOrigin = (req, requestOrigin) => {
   }
 
   const requestHost = req.get("host");
-  const sameOrigin = requestHost && requestOrigin === `${req.protocol}://${requestHost}`;
+  const sameOrigin =
+    requestHost && requestOrigin === `${req.protocol}://${requestHost}`;
 
   return Boolean(sameOrigin || trustedOrigins.has(requestOrigin));
 };
@@ -67,7 +68,11 @@ const getRequestOrigin = (req) => {
 };
 
 const csrfProtection = (req, res, next) => {
-  if (!req.cookies?.jwt || !unsafeMethods.has(req.method) || CSRF_EXEMPT_PATHS.has(req.path)) {
+  if (
+    !req.cookies?.jwt ||
+    !unsafeMethods.has(req.method) ||
+    CSRF_EXEMPT_PATHS.has(req.path)
+  ) {
     return next();
   }
 
@@ -88,7 +93,11 @@ const csrfProtection = (req, res, next) => {
     });
   }
 
-  if (isTrustedOrigin(req, requestOrigin) && csrfHeader && csrfHeader === csrfCookie) {
+  if (
+    isTrustedOrigin(req, requestOrigin) &&
+    csrfHeader &&
+    csrfHeader === csrfCookie
+  ) {
     return next();
   }
 

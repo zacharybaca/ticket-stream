@@ -92,12 +92,12 @@ const getCompanyById = asyncHandler(async (req, res) => {
  *     summary: Create a company
  *     tags: [Companies]
  *     parameters:
-  *       - in: header
-  *         name: X-CSRF-Token
-  *         schema:
-  *           type: string
-  *         required: true
-  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
  *     requestBody:
  *       required: true
  *       content:
@@ -178,12 +178,12 @@ const createCompany = asyncHandler(async (req, res) => {
  *         schema:
  *           type: string
  *         description: Company identifier.
-  *       - in: header
-  *         name: X-CSRF-Token
-  *         schema:
-  *           type: string
-  *         required: true
-  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
  *     requestBody:
  *       required: true
  *       content:
@@ -277,12 +277,12 @@ const updateCompany = asyncHandler(async (req, res) => {
  *         schema:
  *           type: string
  *         description: Company identifier.
-  *       - in: header
-  *         name: X-CSRF-Token
-  *         schema:
-  *           type: string
-  *         required: true
-  *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
+ *       - in: header
+ *         name: X-CSRF-Token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Required for authenticated unsafe requests (must match the csrfToken cookie).
  *     responses:
  *       200:
  *         description: Company deleted

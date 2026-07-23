@@ -21,7 +21,9 @@ const appContent = (
 const appTree = (
   <BrowserRouter>
     {CLERK_PUBLISHABLE_KEY ? (
-      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>{appContent}</ClerkProvider>
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        {appContent}
+      </ClerkProvider>
     ) : (
       appContent
     )}

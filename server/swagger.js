@@ -139,7 +139,13 @@ const swaggerOptions = {
           properties: {
             type: {
               type: "string",
-              enum: ["created", "status-change", "assignment", "comment", "note"],
+              enum: [
+                "created",
+                "status-change",
+                "assignment",
+                "comment",
+                "note",
+              ],
             },
             message: { type: "string" },
             from: { type: "string" },
@@ -163,7 +169,13 @@ const swaggerOptions = {
             description: { type: "string" },
             status: {
               type: "string",
-              enum: ["open", "investigating", "monitoring", "resolved", "closed"],
+              enum: [
+                "open",
+                "investigating",
+                "monitoring",
+                "resolved",
+                "closed",
+              ],
             },
             priority: {
               type: "string",

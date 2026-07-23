@@ -52,7 +52,10 @@ const CreateOrganizationPage = () => {
     return (
       <div className="page-content">
         <h2>Clerk is not configured</h2>
-        <p>Set VITE_CLERK_PUBLISHABLE_KEY in client/.env.local and restart the dev server.</p>
+        <p>
+          Set VITE_CLERK_PUBLISHABLE_KEY in client/.env.local and restart the
+          dev server.
+        </p>
       </div>
     );
   }
