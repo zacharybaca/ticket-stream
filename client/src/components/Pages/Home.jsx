@@ -10,14 +10,12 @@ const Home = () => {
     <div className="home-page">
       <div className="hero-section">
         <div className="container">
-          {/* Replacing the old PNG with your React SVG Component */}
           <NavbarLogo className="home-logo" />
 
-          {/* Visually hidden H1 for SEO and screen readers */}
           <h1 className="visually-hidden">Ticket Stream</h1>
 
-          {/* The New Tagline */}
-          <p className="home-tagline">From Outage to Outcome.</p>
+          {/* Your Final Tagline */}
+          <p className="home-tagline">Less time debugging the client, more time debugging the code.</p>
 
           <p className="home-lead">
             Incident management workspace for software teams handling enterprise
