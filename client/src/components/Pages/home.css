@@ -144,3 +144,41 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Update the logo sizing since the SVG is horizontal */
+.home-logo {
+  max-width: 350px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+/* Visually hidden class for the H1 tag to maintain accessibility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Style the new tagline */
+.home-tagline {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #10B981; /* Matches the solid green in your updated logo */
+  letter-spacing: 0.5px;
+}
+
+/* Adjust the existing lead paragraph slightly to accommodate the tagline */
+.home-lead {
+  margin: 1rem 0 0;
+  width: min(780px, 100%);
+  color: #dbeafe;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}

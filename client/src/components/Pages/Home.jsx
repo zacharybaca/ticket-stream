@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
-// Swap the PNG import for your new component
 import NavbarLogo from '../Layout/Logo/NavbarLogo.jsx';
 import './home.css';
 
@@ -9,62 +8,45 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      <section className="hero-section">
+      <div className="hero-section">
         <div className="container">
-          {/* Use the component and pass the className down */}
+          {/* Replacing the old PNG with your React SVG Component */}
           <NavbarLogo className="home-logo" />
+
+          {/* Visually hidden H1 for SEO and screen readers */}
+          <h1 className="visually-hidden">Ticket Stream</h1>
+
+          {/* The New Tagline */}
+          <p className="home-tagline">From Outage to Outcome.</p>
+
           <p className="home-lead">
             Incident management workspace for software teams handling enterprise
             client outages, service degradation, and high-priority tickets.
           </p>
+
           <div className="hero-actions">
             {user ? (
               <>
-                <Link className="primary-home-btn" to="/incidents">
+                <Link to="/incidents" className="primary-home-btn">
                   Open Incident Center
                 </Link>
-                <Link className="secondary-home-btn" to="/incidents/new">
+                <Link to="/report" className="secondary-home-btn">
                   Report Incident
                 </Link>
               </>
             ) : (
               <>
-                <Link className="primary-home-btn" to="/register">
+                <Link to="/register" className="primary-home-btn">
                   Create account
                 </Link>
-                <Link className="secondary-home-btn" to="/login">
+                <Link to="/login" className="secondary-home-btn">
                   Login
                 </Link>
               </>
             )}
           </div>
         </div>
-      </section>
-
-      {/* ... feature grid remains the same ... */}
-      <section className="feature-grid">
-        <article className="feature-card">
-          <h3>Incident triage board</h3>
-          <p>
-            Prioritize by severity, status, and ownership so support and
-            engineering stay aligned.
-          </p>
-        </article>
-        <article className="feature-card">
-          <h3>Detailed timeline</h3>
-          <p>
-            Track status changes, assignments, and customer-impact notes from
-            first report to closure.
-          </p>
-        </article>
-        <article className="feature-card">
-          <h3>Ops-ready API foundation</h3>
-          <p>
-            Protected REST endpoints designed for dashboard metrics and alerting
-            integrations.
-          </p>
-        </article>
-      </section>
+      </div>
     </div>
   );
 };
