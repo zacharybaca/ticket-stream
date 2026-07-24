@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SocketContext } from './SocketContext.jsx';
 import { io } from 'socket.io-client';
-import { useAuth } from '../../hooks/useAuth';
+import { AuthContext } from '../Auth/AuthContext.jsx';
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const { user } = useAuth();
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
 
   useEffect(() => {
     if (!user) return;
