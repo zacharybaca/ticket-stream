@@ -1,7 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Incident from "../models/Incident.js";
 
-const escapeRegex = (value) =>
+const sanitizeRegexInput = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const parsePositiveInteger = (value, fallback) => {
@@ -98,7 +98,7 @@ const listIncidents = asyncHandler(async (req, res) => {
     typeof req.query.search === "string" ? req.query.search.trim() : "";
 
   if (searchTerm) {
-    const searchRegex = new RegExp(escapeRegex(searchTerm), "i");
+    const searchRegex = new RegExp(sanitizeRegexInput(searchTerm), "i");
     // Keep search broad across the fields operators tend to know during an
     // incident, not just the generated incident code.
     filters.$or = [
