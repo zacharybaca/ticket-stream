@@ -441,7 +441,6 @@ const updateIncident = asyncHandler(async (req, res) => {
     "service",
     "customer",
     "environment",
-    "tags",
   ];
 
   if (req.body.tags !== undefined) {
@@ -458,16 +457,13 @@ const updateIncident = asyncHandler(async (req, res) => {
 
   editableFields.forEach((field) => {
     if (req.body[field] !== undefined) {
-      if (field === "tags") {
-        incident.tags = req.body.tags
-          .map((tag) => tag.trim())
-          .filter(Boolean);
-        return;
-      }
-
       incident[field] = req.body[field];
     }
   });
+
+  if (req.body.tags !== undefined) {
+    incident.tags = req.body.tags.map((tag) => tag.trim()).filter(Boolean);
+  }
 
   if (req.body.assignee !== undefined) {
     const previousAssignee = incident.assignee
