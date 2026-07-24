@@ -6,13 +6,14 @@ import { AuthContext } from '../Auth/AuthContext.jsx';
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const authContext = useContext(AuthContext);
-  const user = authContext?.user;
+  const hasAuthContext = authContext !== null && authContext !== undefined;
+  const user = hasAuthContext ? authContext.user : null;
 
   useEffect(() => {
-    if (authContext === undefined) {
+    if (!hasAuthContext) {
       console.warn('SocketProvider rendered without AuthProvider context.');
     }
-  }, [authContext]);
+  }, [hasAuthContext]);
 
   useEffect(() => {
     if (!user) return;
