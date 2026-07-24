@@ -2,10 +2,11 @@ import request from "supertest";
 import { beforeAll, describe, expect, it } from "vitest";
 
 let app;
+let isCsrfExemptPath;
 
 beforeAll(async () => {
   process.env.CLIENT_URL = "http://localhost:5173";
-  ({ default: app } = await import("../app.js"));
+  ({ default: app, isCsrfExemptPath } = await import("../app.js"));
 });
 
 describe("csrf protection", () => {
@@ -41,6 +42,21 @@ describe("csrf protection", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "User logged out" });
+  });
+
+});
+
+describe("csrf exempt path matching", () => {
+  it("marks forgot password path as exempt", () => {
+    expect(isCsrfExemptPath("/api/auth/forgotpassword")).toBe(true);
+  });
+
+  it("marks reset password path prefix as exempt", () => {
+    expect(isCsrfExemptPath("/api/auth/resetpassword/test-token")).toBe(true);
+  });
+
+  it("does not exempt unrelated auth paths", () => {
+    expect(isCsrfExemptPath("/api/auth/logout")).toBe(false);
   });
 });
 

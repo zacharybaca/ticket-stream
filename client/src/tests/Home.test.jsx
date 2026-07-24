@@ -26,7 +26,7 @@ describe('Home', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /login/i })).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: /incident triage board/i })
+      screen.getByRole('heading', { name: /ticket stream/i })
     ).toBeInTheDocument();
   });
 });
