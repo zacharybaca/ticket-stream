@@ -42,6 +42,28 @@ describe("csrf protection", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "User logged out" });
   });
+
+  it("does not enforce CSRF on forgot password path", async () => {
+    const response = await request(app)
+      .put("/api/auth/forgotpassword")
+      .set("Cookie", ["jwt=test-token"]);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).not.toBe(
+      "Forbidden: invalid CSRF token or request origin",
+    );
+  });
+
+  it("does not enforce CSRF on reset password path", async () => {
+    const response = await request(app)
+      .post("/api/auth/resetpassword/test-token")
+      .set("Cookie", ["jwt=test-token"]);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).not.toBe(
+      "Forbidden: invalid CSRF token or request origin",
+    );
+  });
 });
 
 describe("swagger ui", () => {

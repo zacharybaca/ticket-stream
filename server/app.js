@@ -19,7 +19,16 @@ const unsafeMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 // Authentication endpoints must remain reachable without an existing valid
 // session so that users with stale JWT cookies (but no matching CSRF token)
 // are never permanently locked out of logging in or registering.
-const CSRF_EXEMPT_PATHS = new Set(["/api/auth/login", "/api/auth/register"]);
+const CSRF_EXEMPT_PATHS = new Set([
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/forgotpassword",
+]);
+const CSRF_EXEMPT_PATH_PREFIXES = ["/api/auth/resetpassword/"];
+
+const isCsrfExemptPath = (path) =>
+  CSRF_EXEMPT_PATHS.has(path) ||
+  CSRF_EXEMPT_PATH_PREFIXES.some((prefix) => path.startsWith(prefix));
 
 const corsOptions = {
   origin: [
@@ -71,7 +80,7 @@ const csrfProtection = (req, res, next) => {
   if (
     !req.cookies?.jwt ||
     !unsafeMethods.has(req.method) ||
-    CSRF_EXEMPT_PATHS.has(req.path)
+    isCsrfExemptPath(req.path)
   ) {
     return next();
   }

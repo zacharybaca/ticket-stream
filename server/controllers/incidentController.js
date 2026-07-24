@@ -1,6 +1,14 @@
 import asyncHandler from "express-async-handler";
 import Incident from "../models/Incident.js";
 
+const escapeRegex = (value) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const parsePositiveInteger = (value, fallback) => {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
 const createTimelineEntry = ({
   type,
   message,
@@ -75,8 +83,8 @@ const createTimelineEntry = ({
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 const listIncidents = asyncHandler(async (req, res) => {
-  const page = Number.parseInt(req.query.page || "1", 10);
-  const limit = Number.parseInt(req.query.limit || "20", 10);
+  const page = parsePositiveInteger(req.query.page, 1);
+  const limit = Math.min(parsePositiveInteger(req.query.limit, 20), 100);
   const skip = (page - 1) * limit;
 
   const filters = {};
@@ -86,8 +94,11 @@ const listIncidents = asyncHandler(async (req, res) => {
   if (req.query.severity) filters.severity = req.query.severity;
   if (req.query.assignee === "me") filters.assignee = req.user._id;
 
-  if (req.query.search) {
-    const searchRegex = new RegExp(req.query.search.trim(), "i");
+  const searchTerm =
+    typeof req.query.search === "string" ? req.query.search.trim() : "";
+
+  if (searchTerm) {
+    const searchRegex = new RegExp(escapeRegex(searchTerm), "i");
     // Keep search broad across the fields operators tend to know during an
     // incident, not just the generated incident code.
     filters.$or = [
@@ -433,8 +444,21 @@ const updateIncident = asyncHandler(async (req, res) => {
     "tags",
   ];
 
+  if (req.body.tags !== undefined && !Array.isArray(req.body.tags)) {
+    res.status(400);
+    throw new Error("tags must be an array of strings");
+  }
+
   editableFields.forEach((field) => {
     if (req.body[field] !== undefined) {
+      if (field === "tags") {
+        incident.tags = req.body.tags
+          .filter((tag) => typeof tag === "string")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+        return;
+      }
+
       incident[field] = req.body[field];
     }
   });
@@ -458,11 +482,17 @@ const updateIncident = asyncHandler(async (req, res) => {
     );
   }
 
-  if (req.body.note) {
+  if (req.body.note !== undefined && typeof req.body.note !== "string") {
+    res.status(400);
+    throw new Error("note must be a string");
+  }
+
+  const trimmedNote = req.body.note?.trim();
+  if (trimmedNote) {
     incident.timeline.push(
       createTimelineEntry({
         type: "note",
-        message: req.body.note,
+        message: trimmedNote,
         createdBy: req.user._id,
       }),
     );
