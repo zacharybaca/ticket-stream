@@ -15,7 +15,9 @@ const Home = () => {
           <h1 className="visually-hidden">Ticket Stream</h1>
 
           {/* Your Final Tagline */}
-          <p className="home-tagline">Less time debugging the client, more time debugging the code.</p>
+          <p className="home-tagline">
+            Less time debugging the client, more time debugging the code.
+          </p>
 
           <p className="home-lead">
             Incident management workspace for software teams handling enterprise
