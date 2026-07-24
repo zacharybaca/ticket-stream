@@ -135,7 +135,7 @@ const IncidentDetails = () => {
           <div>
             <p className="metric-label">Priority</p>
             <p className="metric-value">
-              {incident.priority?.toUpperCase() || 'N/A'}
+              {incident.priority?.toUpperCase() || "N/A"}
             </p>
           </div>
           <div>
