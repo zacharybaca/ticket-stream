@@ -6,7 +6,7 @@ import { AuthContext } from '../Auth/AuthContext.jsx';
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const authContext = useContext(AuthContext);
-  const hasAuthContext = authContext != null;
+  const hasAuthContext = authContext !== null && authContext !== undefined;
   const user = hasAuthContext ? authContext.user : null;
 
   useEffect(() => {
