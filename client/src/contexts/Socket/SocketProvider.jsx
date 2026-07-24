@@ -1,11 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SocketContext } from './SocketContext.jsx';
 import { io } from 'socket.io-client';
-import { useAuth } from '../../hooks/useAuth';
+import { AuthContext } from '../Auth/AuthContext.jsx';
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const { user } = useAuth();
+  const authContext = useContext(AuthContext);
+  const hasAuthContext = authContext !== null && authContext !== undefined;
+  const user = hasAuthContext ? authContext.user : null;
+
+  useEffect(() => {
+    if (!hasAuthContext) {
+      console.warn(
+        'SocketProvider requires AuthProvider context. Ensure SocketProvider is wrapped by AuthProvider in the component tree.'
+      );
+    }
+  }, [hasAuthContext]);
 
   useEffect(() => {
     if (!user) return;
