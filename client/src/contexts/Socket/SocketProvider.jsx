@@ -9,6 +9,12 @@ export const SocketProvider = ({ children }) => {
   const user = authContext?.user;
 
   useEffect(() => {
+    if (authContext === undefined) {
+      console.warn('SocketProvider rendered without AuthProvider context.');
+    }
+  }, [authContext]);
+
+  useEffect(() => {
     if (!user) return;
 
     // Initialize connection
