@@ -6,12 +6,14 @@ import { AuthContext } from '../Auth/AuthContext.jsx';
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const authContext = useContext(AuthContext);
-  const hasAuthContext = authContext !== null && authContext !== undefined;
+  const hasAuthContext = authContext != null;
   const user = hasAuthContext ? authContext.user : null;
 
   useEffect(() => {
     if (!hasAuthContext) {
-      console.warn('SocketProvider rendered without AuthProvider context.');
+      console.warn(
+        'SocketProvider requires AuthProvider context. Ensure SocketProvider is wrapped by AuthProvider in the component tree.'
+      );
     }
   }, [hasAuthContext]);
 
