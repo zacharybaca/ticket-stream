@@ -10,11 +10,6 @@ vi.mock("../models/Incident.js", () => ({
 import Incident from "../models/Incident.js";
 import { listIncidents } from "../controllers/incidentController.js";
 
-const runMiddleware = (fn, req, res) =>
-  new Promise((resolve) => {
-    fn(req, res, (err) => resolve(err));
-  });
-
 describe("listIncidents", () => {
   let req;
   let res;
@@ -42,9 +37,7 @@ describe("listIncidents", () => {
   it("escapes search terms before building regex filters", async () => {
     req.query.search = "[";
 
-    const err = await runMiddleware(listIncidents, req, res);
-
-    expect(err).toBeUndefined();
+    await listIncidents(req, res, vi.fn());
     const filters = Incident.find.mock.calls[0][0];
     expect(filters.$or).toBeDefined();
     expect(filters.$or[0].title).toBeInstanceOf(RegExp);
@@ -55,9 +48,7 @@ describe("listIncidents", () => {
     req.query.page = "0";
     req.query.limit = "999";
 
-    const err = await runMiddleware(listIncidents, req, res);
-
-    expect(err).toBeUndefined();
+    await listIncidents(req, res, vi.fn());
     expect(skipMock).toHaveBeenCalledWith(0);
     expect(limitMock).toHaveBeenCalledWith(100);
     expect(res.json).toHaveBeenCalledWith({
