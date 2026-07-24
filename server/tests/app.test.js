@@ -2,10 +2,11 @@ import request from "supertest";
 import { beforeAll, describe, expect, it } from "vitest";
 
 let app;
+let isCsrfExemptPath;
 
 beforeAll(async () => {
   process.env.CLIENT_URL = "http://localhost:5173";
-  ({ default: app } = await import("../app.js"));
+  ({ default: app, isCsrfExemptPath } = await import("../app.js"));
 });
 
 describe("csrf protection", () => {
@@ -43,26 +44,19 @@ describe("csrf protection", () => {
     expect(response.body).toEqual({ message: "User logged out" });
   });
 
-  it("does not enforce CSRF on forgot password path", async () => {
-    const response = await request(app)
-      .put("/api/auth/forgotpassword")
-      .set("Cookie", ["jwt=test-token"]);
+});
 
-    expect(response.status).toBe(404);
-    expect(response.body.message).not.toBe(
-      "Forbidden: invalid CSRF token or request origin",
-    );
+describe("csrf exempt path matching", () => {
+  it("marks forgot password path as exempt", () => {
+    expect(isCsrfExemptPath("/api/auth/forgotpassword")).toBe(true);
   });
 
-  it("does not enforce CSRF on reset password path", async () => {
-    const response = await request(app)
-      .post("/api/auth/resetpassword/test-token")
-      .set("Cookie", ["jwt=test-token"]);
+  it("marks reset password path prefix as exempt", () => {
+    expect(isCsrfExemptPath("/api/auth/resetpassword/test-token")).toBe(true);
+  });
 
-    expect(response.status).toBe(404);
-    expect(response.body.message).not.toBe(
-      "Forbidden: invalid CSRF token or request origin",
-    );
+  it("does not exempt unrelated auth paths", () => {
+    expect(isCsrfExemptPath("/api/auth/logout")).toBe(false);
   });
 });
 

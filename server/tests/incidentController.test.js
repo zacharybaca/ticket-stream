@@ -4,11 +4,15 @@ vi.mock("../models/Incident.js", () => ({
   default: {
     find: vi.fn(),
     countDocuments: vi.fn(),
+    findById: vi.fn(),
   },
 }));
 
 import Incident from "../models/Incident.js";
-import { listIncidents } from "../controllers/incidentController.js";
+import {
+  listIncidents,
+  updateIncident,
+} from "../controllers/incidentController.js";
 
 describe("listIncidents", () => {
   let req;
@@ -32,6 +36,30 @@ describe("listIncidents", () => {
 
     req = { query: {}, user: { _id: "user-1" } };
     res = { json: vi.fn() };
+  });
+
+  describe("updateIncident", () => {
+    it("rejects tag arrays with non-string values", async () => {
+      const req = {
+        params: { id: "incident-1" },
+        body: { tags: ["valid", 123] },
+        user: { _id: "user-1" },
+      };
+      const res = { status: vi.fn().mockReturnThis() };
+      const next = vi.fn();
+
+      Incident.findById.mockResolvedValue({
+        assignee: null,
+        timeline: [],
+        save: vi.fn(),
+      });
+
+      await updateIncident(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+      expect(next.mock.calls[0][0].message).toBe("tags must be an array of strings");
+    });
   });
 
   it("escapes search terms before building regex filters", async () => {

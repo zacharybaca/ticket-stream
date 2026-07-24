@@ -449,11 +449,18 @@ const updateIncident = asyncHandler(async (req, res) => {
     throw new Error("tags must be an array of strings");
   }
 
+  if (
+    Array.isArray(req.body.tags) &&
+    req.body.tags.some((tag) => typeof tag !== "string")
+  ) {
+    res.status(400);
+    throw new Error("tags must be an array of strings");
+  }
+
   editableFields.forEach((field) => {
     if (req.body[field] !== undefined) {
       if (field === "tags") {
         incident.tags = req.body.tags
-          .filter((tag) => typeof tag === "string")
           .map((tag) => tag.trim())
           .filter(Boolean);
         return;

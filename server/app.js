@@ -165,3 +165,4 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(errorHandler);
 
 export default app;
+export { isCsrfExemptPath };
