@@ -443,6 +443,7 @@ const updateIncident = asyncHandler(async (req, res) => {
     "environment",
   ];
 
+  let normalizedTags;
   if (req.body.tags !== undefined) {
     if (!Array.isArray(req.body.tags)) {
       res.status(400);
@@ -453,6 +454,8 @@ const updateIncident = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("each tag must be a string");
     }
+
+    normalizedTags = req.body.tags.map((tag) => tag.trim()).filter(Boolean);
   }
 
   editableFields.forEach((field) => {
@@ -461,8 +464,8 @@ const updateIncident = asyncHandler(async (req, res) => {
     }
   });
 
-  if (req.body.tags !== undefined) {
-    incident.tags = req.body.tags.map((tag) => tag.trim()).filter(Boolean);
+  if (normalizedTags !== undefined) {
+    incident.tags = normalizedTags;
   }
 
   if (req.body.assignee !== undefined) {
