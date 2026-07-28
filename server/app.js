@@ -124,6 +124,11 @@ if (process.env.NODE_ENV !== "test") {
   app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 }
 
+// CORS must run before rate limiters so that preflight responses and any
+// rate-limit 429 responses always carry the correct Access-Control-* headers.
+app.use(cors(corsOptions));
+app.use(cookieParser()); // Must come before routes to parse JWT cookies
+
 // General API rate limiter — 100 req / 15 min per IP
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -134,7 +139,11 @@ const apiLimiter = rateLimit({
 });
 app.use("/api", apiLimiter);
 
-// Stricter auth limiter — 20 req / 15 min per IP
+// Stricter auth limiter — 20 req / 15 min per IP, applied only to
+// state-mutating auth actions. The public company-discovery endpoint
+// (/api/auth/registration-companies) is intentionally excluded so that
+// an unauthenticated page load cannot exhaust the budget before the user
+// even attempts to sign in.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -144,11 +153,11 @@ const authLimiter = rateLimit({
     message: "Too many authentication attempts, please try again later.",
   },
 });
-app.use("/api/auth", authLimiter);
-
-// Middleware
-app.use(cors(corsOptions));
-app.use(cookieParser()); // Must come before routes to parse JWT cookies
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/logout", authLimiter);
+app.use("/api/auth/forgotpassword", authLimiter);
+app.use("/api/auth/resetpassword", authLimiter);
 app.use(syncCsrfTokenHeader);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
