@@ -6,6 +6,15 @@ import { clearCsrfTokenCookie } from "../utils/csrfToken.js";
 import asyncHandler from "express-async-handler";
 import crypto from "crypto";
 
+const extractEmailDomain = (email = "") => {
+  const parts = String(email).trim().toLowerCase().split("@");
+  if (parts.length !== 2 || !parts[1]) {
+    return null;
+  }
+
+  return parts[1];
+};
+
 /**
  * @swagger
  * /api/auth/register:
@@ -24,6 +33,7 @@ import crypto from "crypto";
  *               - username
  *               - email
  *               - password
+ *               - companyId
  *             properties:
  *               name:
  *                 type: string
@@ -35,6 +45,9 @@ import crypto from "crypto";
  *               password:
  *                 type: string
  *                 format: password
+ *               companyId:
+ *                 type: string
+ *                 description: ID of the company selected during registration.
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -50,7 +63,7 @@ import crypto from "crypto";
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, username, email, password } = req.body;
+  const { name, username, email, password, companyId } = req.body;
 
   const userExists = await User.findOne({ email });
   const userNameExists = await User.findOne({ username });
@@ -60,18 +73,32 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("User already exists");
   }
 
-  const parts = email.split("@");
-  if (parts.length !== 2 || !parts[1]) {
+  if (!companyId) {
+    res.status(400);
+    throw new Error("Company selection is required.");
+  }
+
+  const emailDomain = extractEmailDomain(email);
+  if (!emailDomain) {
     res.status(400);
     throw new Error("Invalid email address.");
   }
-  const emailDomain = parts[1].toLowerCase();
-  const company = await Company.findOne({ domain: emailDomain });
+  if (!/^[0-9a-fA-F]{24}$/.test(String(companyId))) {
+    res.status(400);
+    throw new Error("Invalid company selection.");
+  }
+
+  const company = await Company.findById(companyId).select("domain");
 
   if (!company) {
     res.status(400);
+    throw new Error("Selected company does not exist.");
+  }
+
+  if (emailDomain !== company.domain) {
+    res.status(400);
     throw new Error(
-      "No company is registered for your email domain. Please contact your administrator.",
+      "Email domain must match the selected company's domain.",
     );
   }
 
@@ -96,6 +123,36 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Invalid user data");
   }
+});
+
+/**
+ * @swagger
+ * /api/auth/registration-companies:
+ *   get:
+ *     summary: List companies available during registration
+ *     tags: [Auth]
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: Registration companies returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   domain:
+ *                     type: string
+ *                 required: [_id, name, domain]
+ */
+const getRegistrationCompanies = asyncHandler(async (_req, res) => {
+  const companies = await Company.find({}, "_id name domain").sort({ name: 1 });
+  res.status(200).json(companies);
 });
 
 /**
@@ -402,6 +459,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 });
 
 export {
+  getRegistrationCompanies,
   registerUser,
   loginUser,
   logoutUser,
