@@ -89,8 +89,10 @@ const Register = () => {
             />
           </div>
           <div className="auth-form-group">
-            <label>Company</label>
+            <label htmlFor="companyId">Company</label>
             <select
+              id="companyId"
+              name="companyId"
               value={formData.companyId}
               onChange={(e) =>
                 setFormData({ ...formData, companyId: e.target.value })
