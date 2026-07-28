@@ -83,6 +83,10 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Invalid email address.");
   }
+  if (!/^[0-9a-fA-F]{24}$/.test(String(companyId))) {
+    res.status(400);
+    throw new Error("Invalid company selection.");
+  }
 
   const company = await Company.findById(companyId).select("domain");
 
