@@ -10,7 +10,10 @@ const Register = () => {
     username: '',
     email: '',
     password: '',
+    companyId: '',
   });
+  const [companies, setCompanies] = useState([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
   const { fetcher } = useFetcher();
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,6 +24,26 @@ const Register = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location]);
+
+  useEffect(() => {
+    const loadCompanies = async () => {
+      const response = await fetcher(
+        '/api/auth/registration-companies',
+        {},
+        'Failed to load companies.'
+      );
+
+      if (response.success) {
+        setCompanies(response.data);
+      } else {
+        toast.error(response.error || 'Failed to load companies.');
+      }
+
+      setIsLoadingCompanies(false);
+    };
+
+    loadCompanies();
+  }, [fetcher]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,6 +89,26 @@ const Register = () => {
             />
           </div>
           <div className="auth-form-group">
+            <label>Company</label>
+            <select
+              value={formData.companyId}
+              onChange={(e) =>
+                setFormData({ ...formData, companyId: e.target.value })
+              }
+              required
+              disabled={isLoadingCompanies}
+            >
+              <option value="">
+                {isLoadingCompanies ? 'Loading companies...' : 'Select company'}
+              </option>
+              {companies.map((company) => (
+                <option key={company._id} value={company._id}>
+                  {company.name} ({company.domain})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="auth-form-group">
             <label>Email Address</label>
             <input
               type="email"
@@ -87,7 +130,11 @@ const Register = () => {
               required
             />
           </div>
-          <button type="submit" className="auth-submit-btn">
+          <button
+            type="submit"
+            className="auth-submit-btn"
+            disabled={isLoadingCompanies}
+          >
             Create Account
           </button>
         </form>
