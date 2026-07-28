@@ -33,10 +33,10 @@ const Register = () => {
         'Failed to load companies.'
       );
 
-      if (response.success) {
-        setCompanies(response.data);
+      if (response?.success) {
+        setCompanies(Array.isArray(response.data) ? response.data : []);
       } else {
-        toast.error(response.error || 'Failed to load companies.');
+        toast.error(response?.error || 'Failed to load companies.');
       }
 
       setIsLoadingCompanies(false);
